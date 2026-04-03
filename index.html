@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图灵知识图谱 - Turing Knowledge Graph</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #eee;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 {
+            text-align: center;
+            color: #00d4ff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+        h1.sub { font-size: 1.2em; color: #888; margin-bottom: 30px; }
+        h2 {
+            color: #00d4ff;
+            border-bottom: 2px solid #00d4ff;
+            padding-bottom: 10px;
+            margin: 25px 0 15px;
+        }
+        .block {
+            background: rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .person-card {
+            background: rgba(231,76,60,0.15);
+            border-left: 4px solid #e74c3c;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .person-card h3 { color: #e74c3c; margin-bottom: 10px; font-size: 1.4em; }
+        .person-card p { margin: 8px 0; line-height: 1.6; }
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        .badge-person { background: #e74c3c; }
+        .badge-event { background: #3498db; }
+        .badge-location { background: #27ae60; }
+        .badge-publication { background: #f39c12; }
+        .badge-award { background: #9b59b6; }
+        .badge-class { background: #636e72; }
+        .badge-property { background: #00b894; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        th { background: rgba(0,212,255,0.2); color: #00d4ff; font-weight: 600; }
+        tr:hover { background: rgba(255,255,255,0.05); }
+        .resource { color: #ffd93d; }
+        .literal { color: #98d8aa; }
+        .comment { color: #888; font-style: italic; }
+        .reification {
+            background: rgba(155,89,182,0.15);
+            border-left: 4px solid #9b59b6;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .reification h4 { color: #9b59b6; margin-bottom: 10px; }
+        .load-area {
+            background: rgba(255,255,255,0.05);
+            border: 2px dashed rgba(255,255,255,0.2);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .load-area input[type="file"] { display: none; }
+        .load-area label {
+            display: inline-block;
+            background: #00d4ff;
+            color: #1a1a2e;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .load-area label:hover { background: #00b8e6; transform: scale(1.05); }
+        .ref-link { color: #ffd93d; font-family: monospace; font-size: 12px; }
+        .hidden { display: none; }
+        .entity-list { display: flex; flex-wrap: wrap; gap: 8px; }
+        .entity-tag {
+            background: rgba(255,255,255,0.1);
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 13px;
+            color: #ffd93d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>图灵知识图谱</h1>
+        <h1 class="sub">Turing Knowledge Graph</h1>
+
+        <div class="load-area" id="loadArea">
+            <p style="margin-bottom: 20px; color: #888;">请选择 RDF/XML 文件加载数据</p>
+            <input type="file" id="fileInput" accept=".xml,.ttl">
+            <label for="fileInput">选择文件</label>
+        </div>
+
+        <div id="content" class="hidden">
+            <!-- 人物 -->
+            <div class="block" id="personSection">
+                <h2>人物 (Person)</h2>
+                <div id="personContent"></div>
+            </div>
+
+            <!-- 事件 -->
+            <div class="block" id="eventSection">
+                <h2>事件 (Events)</h2>
+                <table id="eventTable">
+                    <thead><tr><th>事件</th><th>类型</th><th>日期</th><th>地点</th><th>描述</th></tr></thead>
+                    <tbody id="eventBody"></tbody>
+                </table>
+            </div>
+
+            <!-- 地点 -->
+            <div class="block" id="locationSection">
+                <h2>地点 (Locations)</h2>
+                <table id="locationTable">
+                    <thead><tr><th>城市</th><th>国家</th><th>描述</th></tr></thead>
+                    <tbody id="locationBody"></tbody>
+                </table>
+            </div>
+
+            <!-- 著作 -->
+            <div class="block" id="publicationSection">
+                <h2>学术著作 (Publications)</h2>
+                <table id="publicationTable">
+                    <thead><tr><th>著作</th><th>类型</th><th>年份</th><th>描述</th></tr></thead>
+                    <tbody id="publicationBody"></tbody>
+                </table>
+            </div>
+
+            <!-- 奖项 -->
+            <div class="block" id="awardSection">
+                <h2>荣誉奖项 (Awards)</h2>
+                <table id="awardTable">
+                    <thead><tr><th>奖项</th><th>类型</th><th>年份</th><th>描述</th></tr></thead>
+                    <tbody id="awardBody"></tbody>
+                </table>
+            </div>
+
+            <!-- 本体引用 -->
+            <div class="block" id="referenceSection">
+                <h2>本体引用 (Ontology References)</h2>
+                <p class="comment">类和属性引用自 ontology/turing-rdfs.xml</p>
+                <table id="referenceTable">
+                    <thead><tr><th>实体</th><th>类型</th><th>引用来源</th></tr></thead>
+                    <tbody id="referenceBody"></tbody>
+                </table>
+            </div>
+
+            <!-- RDF Reification -->
+            <div class="block" id="reificationSection">
+                <h2>RDF Reification 引用</h2>
+                <p class="comment">RDF Reification 用于表示多元关系（如包含时间范围和角色）</p>
+                <div id="reificationContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const NS = {
+            rdf: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+            rdfs: 'http://www.w3.org/2000/01/rdf-schema#',
+            turing: 'http://www.example.org/turing#'
+        };
+
+        const parser = new DOMParser();
+        let entityLabels = {}; // 存储所有实体的ID到标签的映射
+
+        document.getElementById('fileInput').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const text = await file.text();
+            const doc = parser.parseFromString(text, 'application/xml');
+
+            // 首先构建实体标签映射
+            buildLabelMap(doc);
+
+            document.getElementById('loadArea').classList.add('hidden');
+            document.getElementById('content').classList.remove('hidden');
+
+            renderPerson(doc);
+            renderEvents(doc);
+            renderLocations(doc);
+            renderPublications(doc);
+            renderAwards(doc);
+            renderReferences(doc);
+            renderReification(doc);
+        });
+
+        // 构建所有实体的ID到标签的映射
+        function buildLabelMap(doc) {
+            entityLabels = {};
+            const allElements = doc.getElementsByTagName('*');
+            for (const el of allElements) {
+                const rdfId = el.getAttribute('rdf:ID');
+                if (rdfId) {
+                    const label = el.getElementsByTagNameNS(NS.rdfs, 'label')[0];
+                    entityLabels[rdfId] = label ? label.textContent : rdfId;
+                }
+            }
+        }
+
+        function getLabel(item) {
+            const label = item.getElementsByTagNameNS(NS.rdfs, 'label')[0];
+            return label ? label.textContent : item.getAttribute('rdf:ID') || '';
+        }
+
+        function getType(item) {
+            const tag = item.tagName.toLowerCase();
+            if (tag.includes('academic')) return '学术';
+            if (tag.includes('personal')) return '个人';
+            if (tag.includes('historical')) return '历史';
+            if (tag.includes('paper')) return '论文';
+            if (tag.includes('report')) return '报告';
+            if (tag.includes('book')) return '书籍';
+            return '';
+        }
+
+        function getResourceId(item, prop) {
+            const el = item.getElementsByTagNameNS(NS.turing, prop)[0];
+            if (el) {
+                const res = el.getAttributeNS(NS.rdf, 'resource');
+                return res ? res.replace('#', '') : '';
+            }
+            return '';
+        }
+
+        function getResourceLabel(item, prop) {
+            const id = getResourceId(item, prop);
+            return entityLabels[id] || id;
+        }
+
+        function getValue(item, prop) {
+            const el = item.getElementsByTagNameNS(NS.turing, prop)[0];
+            return el ? el.textContent : '';
+        }
+
+        function getRef(item) {
+            const def = item.getElementsByTagNameNS(NS.rdfs, 'isDefinedBy')[0];
+            return def ? def.getAttributeNS(NS.rdf, 'resource') : '';
+        }
+
+        // 获取实体标签，优先使用映射，否则返回ID
+        function getEntityLabel(id) {
+            return entityLabels[id] || id;
+        }
+
+        function renderPerson(doc) {
+            const persons = doc.getElementsByTagNameNS(NS.turing, 'Person');
+            let html = '';
+            for (const p of persons) {
+                const name = getLabel(p);
+                const desc = getValue(p, 'description');
+                const events = p.getElementsByTagNameNS(NS.turing, 'participatedIn');
+                const pubs = p.getElementsByTagNameNS(NS.turing, 'wrote');
+                const awards = p.getElementsByTagNameNS(NS.turing, 'received');
+
+                // 转换事件ID为标签
+                const eventTags = Array.from(events).map(e => {
+                    const id = e.getAttributeNS(NS.rdf, 'resource').replace('#', '');
+                    return `<span class="entity-tag">${getEntityLabel(id)}</span>`;
+                });
+
+                // 转换著作ID为标签
+                const pubTags = Array.from(pubs).map(e => {
+                    const id = e.getAttributeNS(NS.rdf, 'resource').replace('#', '');
+                    return `<span class="entity-tag">${getEntityLabel(id)}</span>`;
+                });
+
+                // 转换奖项ID为标签
+                const awardTags = Array.from(awards).map(e => {
+                    const id = e.getAttributeNS(NS.rdf, 'resource').replace('#', '');
+                    return `<span class="entity-tag">${getEntityLabel(id)}</span>`;
+                });
+
+                html += `<div class="person-card">
+                    <h3><span class="badge badge-person">人</span>${name}</h3>
+                    <p>${desc}</p>
+                    <p><strong>参与事件:</strong></p>
+                    <div class="entity-list">${eventTags.join('') || '无'}</div>
+                    <p style="margin-top:10px"><strong>撰写著作:</strong></p>
+                    <div class="entity-list">${pubTags.join('') || '无'}</div>
+                    <p style="margin-top:10px"><strong>获得奖项:</strong></p>
+                    <div class="entity-list">${awardTags.join('') || '无'}</div>
+                </div>`;
+            }
+            document.getElementById('personContent').innerHTML = html;
+        }
+
+        function renderEvents(doc) {
+            const types = ['AcademicEvent', 'PersonalEvent', 'HistoricalEvent'];
+            const eventData = [];
+
+            for (const t of types) {
+                const items = doc.getElementsByTagNameNS(NS.turing, t);
+                for (const item of items) {
+                    const id = item.getAttribute('rdf:ID');
+                    const label = getLabel(item);
+                    const type = getType(item);
+                    const date = getValue(item, 'eventDate');
+                    const locId = getResourceId(item, 'happenedAt');
+                    const locLabel = getEntityLabel(locId);
+                    const desc = getValue(item, 'description');
+                    eventData.push({ label, type, date, locLabel, desc });
+                }
+            }
+
+            // 按日期排序
+            eventData.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            let rows = '';
+            for (const e of eventData) {
+                rows += `<tr>
+                    <td>${e.label}</td>
+                    <td><span class="badge badge-event">${e.type}</span></td>
+                    <td>${e.date}</td>
+                    <td><span class="resource">${e.locLabel}</span></td>
+                    <td>${e.desc}</td>
+                </tr>`;
+            }
+            document.getElementById('eventBody').innerHTML = rows;
+        }
+
+        function renderLocations(doc) {
+            const items = doc.getElementsByTagNameNS(NS.turing, 'City');
+            let rows = '';
+            for (const item of items) {
+                const label = getLabel(item);
+                const country = getValue(item, 'country');
+                const desc = getValue(item, 'description');
+                rows += `<tr><td><span class="badge badge-location">地</span>${label}</td><td>${country}</td><td>${desc}</td></tr>`;
+            }
+            document.getElementById('locationBody').innerHTML = rows;
+        }
+
+        function renderPublications(doc) {
+            const types = ['Paper', 'TechnicalReport', 'Book'];
+            let rows = '';
+            for (const t of types) {
+                const items = doc.getElementsByTagNameNS(NS.turing, t);
+                for (const item of items) {
+                    const label = getLabel(item);
+                    const type = getType(item);
+                    const year = getValue(item, 'publicationYear');
+                    const desc = getValue(item, 'description');
+                    rows += `<tr><td>${label}</td><td><span class="badge badge-publication">${type}</span></td><td>${year}</td><td>${desc}</td></tr>`;
+                }
+            }
+            document.getElementById('publicationBody').innerHTML = rows;
+        }
+
+        function renderAwards(doc) {
+            const types = ['AcademicAward', 'HonoraryTitle'];
+            let rows = '';
+            for (const t of types) {
+                const items = doc.getElementsByTagNameNS(NS.turing, t);
+                for (const item of items) {
+                    const label = getLabel(item);
+                    const type = t === 'AcademicAward' ? '学术' : '荣誉';
+                    const year = getValue(item, 'awardYear');
+                    const desc = getValue(item, 'description');
+                    rows += `<tr><td>${label}</td><td><span class="badge badge-award">${type}</span></td><td>${year}</td><td>${desc}</td></tr>`;
+                }
+            }
+            document.getElementById('awardBody').innerHTML = rows;
+        }
+
+        function renderReferences(doc) {
+            let rows = '';
+            const classes = doc.getElementsByTagNameNS(NS.rdfs, 'Class');
+            for (const c of classes) {
+                const label = c.getAttribute('rdfs:label') || c.getAttribute('rdf:ID');
+                const ref = getRef(c);
+                if (label && label !== 'Resource') {
+                    rows += `<tr><td style="color:#00d4ff">${label}</td><td><span class="badge badge-class">Class</span></td><td><span class="ref-link">${ref}</span></td></tr>`;
+                }
+            }
+            const props = doc.getElementsByTagNameNS(NS.rdf, 'Property');
+            for (const p of props) {
+                const id = p.getAttribute('rdf:ID');
+                const ref = getRef(p);
+                if (id && ref) {
+                    rows += `<tr><td style="color:#98d8aa">${id}</td><td><span class="badge badge-property">Property</span></td><td><span class="ref-link">${ref}</span></td></tr>`;
+                }
+            }
+            document.getElementById('referenceBody').innerHTML = rows;
+        }
+
+        function renderReification(doc) {
+            const statements = doc.getElementsByTagNameNS(NS.rdf, 'Statement');
+            let html = '';
+            for (const s of statements) {
+                const id = s.getAttribute('rdf:ID');
+                const subjId = s.getElementsByTagNameNS(NS.rdf, 'subject')[0]?.getAttributeNS(NS.rdf, 'resource')?.replace('#', '') || '';
+                const predUri = s.getElementsByTagNameNS(NS.rdf, 'predicate')[0]?.getAttributeNS(NS.rdf, 'resource') || '';
+                const objId = s.getElementsByTagNameNS(NS.rdf, 'object')[0]?.getAttributeNS(NS.rdf, 'resource')?.replace('#', '') || '';
+                const period = getValue(s, 'period');
+                const role = getValue(s, 'role');
+
+                // 获取谓语的中文名称（从URI提取）
+                const predName = predUri.split('#')[1] || predUri;
+                const predLabels = {
+                    'participatedIn': '参与事件',
+                    'wrote': '撰写著作',
+                    'received': '获得奖项',
+                    'happenedAt': '发生地点'
+                };
+                const predLabel = predLabels[predName] || predName;
+
+                html += `<div class="reification">
+                    <h4><span class="badge badge-award">s,p,o</span>${id}</h4>
+                    <p><strong>主语:</strong> <span class="resource">${getEntityLabel(subjId)}</span></p>
+                    <p><strong>谓语:</strong> <span style="color:#74b9ff">${predLabel}</span></p>
+                    <p><strong>宾语:</strong> <span class="resource">${getEntityLabel(objId)}</span></p>
+                    ${period ? `<p><strong>时间范围:</strong> <span class="literal">${period}</span></p>` : ''}
+                    ${role ? `<p><strong>角色:</strong> <span class="literal">${role}</span></p>` : ''}
+                </div>`;
+            }
+            document.getElementById('reificationContent').innerHTML = html;
+        }
+    </script>
+</body>
+</html>

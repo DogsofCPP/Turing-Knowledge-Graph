@@ -1,0 +1,160 @@
+<?xml version="1.0"?>
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:turing="http://www.example.org/turing#"
+    xml:base="http://www.example.org/turing">
+
+    <owl:Ontology rdf:about="http://www.example.org/turing-owl">
+        <rdfs:comment>图灵知识图谱OWL约束定义</rdfs:comment>
+    </owl:Ontology>
+
+    <!-- 类继承约束 -->
+    <!-- Paper ⊑ Publication -->
+    <owl:Class rdf:ID="Paper">
+        <rdfs:subClassOf rdf:resource="#Publication"/>
+    </owl:Class>
+
+    <!-- Book ⊑ Publication -->
+    <owl:Class rdf:ID="Book">
+        <rdfs:subClassOf rdf:resource="#Publication"/>
+    </owl:Class>
+
+    <!-- TechnicalReport ⊑ Publication -->
+    <owl:Class rdf:ID="TechnicalReport">
+        <rdfs:subClassOf rdf:resource="#Publication"/>
+    </owl:Class>
+
+    <!-- AcademicEvent ⊑ Event -->
+    <owl:Class rdf:ID="AcademicEvent">
+        <rdfs:subClassOf rdf:resource="#Event"/>
+    </owl:Class>
+
+    <!-- PersonalEvent ⊑ Event -->
+    <owl:Class rdf:ID="PersonalEvent">
+        <rdfs:subClassOf rdf:resource="#Event"/>
+    </owl:Class>
+
+    <!-- HistoricalEvent ⊑ Event -->
+    <owl:Class rdf:ID="HistoricalEvent">
+        <rdfs:subClassOf rdf:resource="#Event"/>
+    </owl:Class>
+
+    <!-- City ⊑ Location -->
+    <owl:Class rdf:ID="City">
+        <rdfs:subClassOf rdf:resource="#Location"/>
+    </owl:Class>
+
+    <!-- Country ⊑ Location -->
+    <owl:Class rdf:ID="Country">
+        <rdfs:subClassOf rdf:resource="#Location"/>
+    </owl:Class>
+
+    <!-- InstitutionLocation ⊑ Location -->
+    <owl:Class rdf:ID="InstitutionLocation">
+        <rdfs:subClassOf rdf:resource="#Location"/>
+    </owl:Class>
+
+    <!-- AcademicAward ⊑ Award -->
+    <owl:Class rdf:ID="AcademicAward">
+        <rdfs:subClassOf rdf:resource="#Award"/>
+    </owl:Class>
+
+    <!-- HonoraryTitle ⊑ Award -->
+    <owl:Class rdf:ID="HonoraryTitle">
+        <rdfs:subClassOf rdf:resource="#Award"/>
+    </owl:Class>
+
+    <!-- 属性特征约束 -->
+    <!-- eventDate具有函数性：一个事件只有一个日期 -->
+    <rdf:Property rdf:ID="eventDate">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    </rdf:Property>
+
+    <!-- publicationYear具有函数性：一本著作只有一个发表年份 -->
+    <rdf:Property rdf:ID="publicationYear">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    </rdf:Property>
+
+    <!-- awardYear具有函数性：一个奖项只有一个颁发年份 -->
+    <rdf:Property rdf:ID="awardYear">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    </rdf:Property>
+
+    <!-- 基数约束 -->
+    <!-- 每个事件至少有一个发生地点 -->
+    <owl:Class rdf:ID="Event">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="#happenedAt"/>
+                <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+    <!-- 属性定义域约束 -->
+    <!-- participatedIn的定义域是Person -->
+    <rdf:Property rdf:ID="participatedIn">
+        <rdfs:domain rdf:resource="#Person"/>
+        <rdfs:range rdf:resource="#Event"/>
+    </rdf:Property>
+
+    <!-- wrote的定义域是Person -->
+    <rdf:Property rdf:ID="wrote">
+        <rdfs:domain rdf:resource="#Person"/>
+        <rdfs:range rdf:resource="#Publication"/>
+    </rdf:Property>
+
+    <!-- received的定义域是Person -->
+    <rdf:Property rdf:ID="received">
+        <rdfs:domain rdf:resource="#Person"/>
+        <rdfs:range rdf:resource="#Award"/>
+    </rdf:Property>
+
+    <!-- nominatedFor的定义域是Person -->
+    <rdf:Property rdf:ID="nominatedFor">
+        <rdfs:domain rdf:resource="#Person"/>
+        <rdfs:range rdf:resource="#Award"/>
+    </rdf:Property>
+
+    <!-- happenedAt的定义域是Event -->
+    <rdf:Property rdf:ID="happenedAt">
+        <rdfs:domain rdf:resource="#Event"/>
+        <rdfs:range rdf:resource="#Location"/>
+    </rdf:Property>
+
+    <!-- locatedIn的定义域是Location -->
+    <rdf:Property rdf:ID="locatedIn">
+        <rdfs:domain rdf:resource="#Location"/>
+        <rdfs:range rdf:resource="#Location"/>
+    </rdf:Property>
+
+    <!-- 数据类型属性定义 -->
+    <rdf:Property rdf:ID="eventDate">
+        <rdfs:domain rdf:resource="#Event"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#date"/>
+    </rdf:Property>
+
+    <rdf:Property rdf:ID="publicationYear">
+        <rdfs:domain rdf:resource="#Publication"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#gYear"/>
+    </rdf:Property>
+
+    <rdf:Property rdf:ID="awardYear">
+        <rdfs:domain rdf:resource="#Award"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#gYear"/>
+    </rdf:Property>
+
+    <rdf:Property rdf:ID="description">
+        <rdfs:domain rdf:resource="http://www.w3.org/2000/01/rdf-schema#Resource"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </rdf:Property>
+
+    <rdf:Property rdf:ID="country">
+        <rdfs:domain rdf:resource="#Location"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </rdf:Property>
+
+</rdf:RDF>

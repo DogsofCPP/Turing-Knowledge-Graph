@@ -1,0 +1,201 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix turing: <http://www.example.org/turing#> .
+
+# ==================== 人物实例 ====================
+
+turing:AlanTuring a turing:Person ;
+    rdfs:label "艾伦·图灵"@zh ;
+    turing:description "艾伦·图灵（1912-1954），英国数学家、逻辑学家、计算机科学家，被视为计算机科学之父"@zh ;
+    turing:participatedIn turing:Event_Birth,
+        turing:Event_CambridgeEnrollment,
+        turing:Event_TuringMachinePaper,
+        turing:Event_PrincetonPhD,
+        turing:Event_BletchleyPark,
+        turing:Event_BombeDesign,
+        turing:Event_ManchesterUniversity,
+        turing:Event_TuringTestPaper,
+        turing:Event_Trial,
+        turing:Event_Death ;
+    turing:wrote turing:Publication_ComputableNumbers,
+        turing:Publication_ComputingIntelligence,
+        turing:Publication_ChemicalBasis,
+        turing:Publication_ACEReport ;
+    turing:received turing:Award_FRS,
+        turing:Award_OBE,
+        turing:Award_RoyalPardon .
+
+# ==================== 事件实例 ====================
+
+# 个人事件
+turing:Event_Birth a turing:PersonalEvent ;
+    rdfs:label "图灵出生"@zh ;
+    turing:eventDate "1912-06-23"^^xsd:date ;
+    turing:happenedAt turing:Location_London ;
+    turing:description "艾伦·图灵出生于伦敦"@zh .
+
+turing:Event_Trial a turing:PersonalEvent ;
+    rdfs:label "图灵审判"@zh ;
+    turing:eventDate "1952-03-31"^^xsd:date ;
+    turing:happenedAt turing:Location_Wilmslow ;
+    turing:description "因同性恋行为被判化学阉割"@zh .
+
+turing:Event_Death a turing:PersonalEvent ;
+    rdfs:label "图灵逝世"@zh ;
+    turing:eventDate "1954-06-07"^^xsd:date ;
+    turing:happenedAt turing:Location_Wilmslow ;
+    turing:description "因氰化物中毒逝世"@zh .
+
+# 学术事件
+turing:Event_CambridgeEnrollment a turing:AcademicEvent ;
+    rdfs:label "剑桥入学"@zh ;
+    turing:eventDate "1931-10-01"^^xsd:date ;
+    turing:happenedAt turing:Location_Cambridge ;
+    turing:description "进入剑桥大学国王学院学习"@zh .
+
+turing:Event_TuringMachinePaper a turing:AcademicEvent ;
+    rdfs:label "发表图灵机论文"@zh ;
+    turing:eventDate "1936-11-30"^^xsd:date ;
+    turing:happenedAt turing:Location_London ;
+    turing:description "发表《论可计算数及其在判定问题中的应用》"@zh .
+
+turing:Event_PrincetonPhD a turing:AcademicEvent ;
+    rdfs:label "普林斯顿博士"@zh ;
+    turing:eventDate "1938-06-01"^^xsd:date ;
+    turing:happenedAt turing:Location_Princeton ;
+    turing:description "获普林斯顿大学博士学位"@zh .
+
+turing:Event_BletchleyPark a turing:AcademicEvent ;
+    rdfs:label "加入布莱切利园"@zh ;
+    turing:eventDate "1939-09-01"^^xsd:date ;
+    turing:happenedAt turing:Location_Bletchley ;
+    turing:description "加入密码破译机构"@zh .
+
+turing:Event_BombeDesign a turing:AcademicEvent ;
+    rdfs:label "设计Bombe破译机"@zh ;
+    turing:eventDate "1940-01-01"^^xsd:date ;
+    turing:happenedAt turing:Location_Bletchley ;
+    turing:description "研发恩尼格玛破解设备"@zh .
+
+turing:Event_ManchesterUniversity a turing:AcademicEvent ;
+    rdfs:label "曼彻斯特大学任教"@zh ;
+    turing:eventDate "1948-10-01"^^xsd:date ;
+    turing:happenedAt turing:Location_Manchester ;
+    turing:description "任计算机实验室副主任"@zh .
+
+turing:Event_TuringTestPaper a turing:AcademicEvent ;
+    rdfs:label "发表图灵测试论文"@zh ;
+    turing:eventDate "1950-10-01"^^xsd:date ;
+    turing:happenedAt turing:Location_Manchester ;
+    turing:description "发表《计算机与智能》"@zh .
+
+# 历史事件
+turing:Event_GovernmentApology a turing:HistoricalEvent ;
+    rdfs:label "英国政府道歉"@zh ;
+    turing:eventDate "2009-09-10"^^xsd:date ;
+    turing:happenedAt turing:Location_London ;
+    turing:description "英国政府正式道歉"@zh .
+
+turing:Event_RoyalPardon a turing:HistoricalEvent ;
+    rdfs:label "皇家赦免"@zh ;
+    turing:eventDate "2013-12-24"^^xsd:date ;
+    turing:happenedAt turing:Location_London ;
+    turing:description "获英国皇家赦免"@zh .
+
+# ==================== 地点实例 ====================
+
+turing:Location_London a turing:City ;
+    rdfs:label "伦敦"@zh ;
+    turing:country "英国"@zh ;
+    turing:description "图灵出生地"@zh .
+
+turing:Location_Cambridge a turing:City ;
+    rdfs:label "剑桥"@zh ;
+    turing:country "英国"@zh ;
+    turing:description "剑桥大学所在地"@zh .
+
+turing:Location_Princeton a turing:City ;
+    rdfs:label "普林斯顿"@zh ;
+    turing:country "美国"@zh ;
+    turing:description "普林斯顿大学所在地"@zh .
+
+turing:Location_Bletchley a turing:City ;
+    rdfs:label "布莱切利"@zh ;
+    turing:country "英国"@zh ;
+    turing:description "布莱切利园所在地"@zh .
+
+turing:Location_Manchester a turing:City ;
+    rdfs:label "曼彻斯特"@zh ;
+    turing:country "英国"@zh ;
+    turing:description "曼彻斯特大学所在地"@zh .
+
+turing:Location_Wilmslow a turing:City ;
+    rdfs:label "威尔姆斯洛"@zh ;
+    turing:country "英国"@zh ;
+    turing:description "图灵晚年居住地及逝世地"@zh .
+
+# ==================== 学术著作实例 ====================
+
+turing:Publication_ComputableNumbers a turing:Paper ;
+    rdfs:label "论可计算数及其在判定问题中的应用"@zh ;
+    turing:publicationYear "1936"^^xsd:gYear ;
+    turing:description "提出图灵机概念，奠定计算理论基础"@zh .
+
+turing:Publication_ComputingIntelligence a turing:Paper ;
+    rdfs:label "计算机与智能"@zh ;
+    turing:publicationYear "1950"^^xsd:gYear ;
+    turing:description "提出图灵测试，开启人工智能研究"@zh .
+
+turing:Publication_ChemicalBasis a turing:Paper ;
+    rdfs:label "形态发生的化学基础"@zh ;
+    turing:publicationYear "1952"^^xsd:gYear ;
+    turing:description "数学生物学领域开创性工作"@zh .
+
+turing:Publication_ACEReport a turing:TechnicalReport ;
+    rdfs:label "ACE计算机设计报告"@zh ;
+    turing:publicationYear "1945"^^xsd:gYear ;
+    turing:description "早期存储程序计算机设计方案"@zh .
+
+# ==================== 荣誉奖项实例 ====================
+
+turing:Award_FRS a turing:AcademicAward ;
+    rdfs:label "英国皇家学会院士"@zh ;
+    turing:awardYear "1951"^^xsd:gYear ;
+    turing:description "当选皇家学会院士"@zh .
+
+turing:Award_OBE a turing:HonoraryTitle ;
+    rdfs:label "大英帝国勋章"@zh ;
+    turing:awardYear "1946"^^xsd:gYear ;
+    turing:description "表彰二战密码破译贡献"@zh .
+
+turing:Award_Turing a turing:AcademicAward ;
+    rdfs:label "图灵奖"@zh ;
+    turing:awardYear "1966"^^xsd:gYear ;
+    turing:description "以他命名的计算机界最高奖"@zh .
+
+turing:Award_Banknote a turing:HonoraryTitle ;
+    rdfs:label "英国50英镑纸币"@zh ;
+    turing:awardYear "2021"^^xsd:gYear ;
+    turing:description "头像印于新版50英镑纸币"@zh .
+
+turing:Award_RoyalPardon a turing:HonoraryTitle ;
+    rdfs:label "皇家赦免"@zh ;
+    turing:awardYear "2013"^^xsd:gYear ;
+    turing:description "英国女王签署赦免令"@zh .
+
+turing:Award_TuringAct a turing:HonoraryTitle ;
+    rdfs:label "艾伦·图灵法案"@zh ;
+    turing:awardYear "2017"^^xsd:gYear ;
+    turing:description "赦免历史上因同性恋定罪者"@zh .
+
+# ==================== RDF Reification 多元关系 ====================
+
+# 布莱切利园工作期（包含时间范围和角色信息）
+turing:Statement_BletchleyWork a rdf:Statement ;
+    rdf:subject turing:AlanTuring ;
+    rdf:predicate turing:participatedIn ;
+    rdf:object turing:Event_BletchleyPark ;
+    turing:period "1939-1945"@zh ;
+    turing:role "首席密码学家"@zh .
