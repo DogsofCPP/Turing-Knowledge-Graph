@@ -1,0 +1,43 @@
+# 模拟从 Wikipedia 爬取的 Alan Turing 相关语料
+# 格式: 句序号[TAB]句子
+# 注意：包含大写的非实体词（World, Turing, Computer），让 CRF 学习上下文而非只看 istitle
+1	Alan Turing was born in London on 23 June 1912.
+2	He studied mathematics at King's College, Cambridge.
+3	He earned his PhD at Princeton in 1938.
+4	At Bletchley Park, Turing broke the Enigma cipher.
+5	The Turing machine paper appeared in 1936.
+6	The ACE design was published in 1945.
+7	Turing worked at Manchester University after the war.
+8	His Computing Machinery and Intelligence paper came out in 1950.
+9	He proposed the famous Turing Test in Mind journal.
+10	Turing received the OBE for wartime service in 1946.
+11	He was elected Fellow of the Royal Society in 1951.
+12	Turing died in Wilmslow on 7 June 1954.
+13	Alonzo Church supervised Turing at Princeton University.
+14	Max Newman led the codebreakers at Bletchley Park.
+15	John von Neumann admired Turing's mathematical ideas.
+16	Claude Shannon met Turing at the University of Manchester.
+17	The Chemical Basis of Morphogenesis was published in 1952.
+18	The Turing Award was established in his honor in 1966.
+19	Queen Elizabeth II granted Turing a royal pardon in 2013.
+20	Turing's image appears on the fifty-pound banknote.
+21	The Alan Turing Act pardoned thousands of men in 2017.
+22	Princeton is a town in New Jersey, United States.
+23	Cambridge is home to King's College and Trinity College.
+24	Bletchley Park is located in Milton Keynes, England.
+25	Manchester is a city in northern England.
+26	Wilmslow is a town in Cheshire, England.
+27	World War II led Turing to Bletchley Park.
+28	Turing was prosecuted for homosexuality in 1952.
+29	Turing's father was Julius Turing, a civil servant.
+30	Turing's mother was Ethel Sara Turing, born in India.
+31	Church and Turing developed the Church-Turing thesis.
+32	The Turing machine formalized computation theory.
+33	Computer Science grew from Turing's early work.
+34	King's College Cambridge is where Turing studied.
+35	World War I began in 1914, before Turing was born.
+36	The British Empire covered large parts of the world.
+37	New York is far from Turing's usual locations.
+38	Science and Mathematics were Turing's great interests.
+39	England and America both shaped Turing's career.
+40	King Edward's School educated Turing before Cambridge.

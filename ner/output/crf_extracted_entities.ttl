@@ -1,0 +1,238 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix turing: <http://www.example.org/turing#> .
+
+turing:AWD a rdfs:Class ;
+    rdfs:label "奖项" .
+
+turing:EVT a rdfs:Class ;
+    rdfs:label "事件" .
+
+turing:LOC a rdfs:Class ;
+    rdfs:label "地点" .
+
+turing:PER a rdfs:Class ;
+    rdfs:label "人物" .
+
+turing:PUB a rdfs:Class ;
+    rdfs:label "著作" .
+
+turing:Alan_Turing_Act a turing:AWD ;
+    rdfs:label "Alan Turing Act" ;
+    turing:description "CRF抽取 (来源: EN21 )" .
+
+turing:Bletchley_Park a turing:LOC ;
+    rdfs:label "Bletchley Park" ;
+    turing:description "CRF抽取 (来源: EN4, EN14, EN24 )" .
+
+turing:Cambridge a turing:LOC ;
+    rdfs:label "Cambridge" ;
+    turing:description "CRF抽取 (来源: EN2, EN23, EN40 )" .
+
+turing:Cheshire a turing:LOC ;
+    rdfs:label "Cheshire" ;
+    turing:description "CRF抽取 (来源: EN26 )" .
+
+turing:Church a turing:PER ;
+    rdfs:label "Church" ;
+    turing:description "CRF抽取 (来源: EN31, EN31 )" .
+
+turing:Claude_Shannon a turing:PER ;
+    rdfs:label "Claude Shannon" ;
+    turing:description "CRF抽取 (来源: EN16 )" .
+
+turing:Computing_Machinery_and_Intelligence a turing:PUB ;
+    rdfs:label "Computing Machinery and Intelligence" ;
+    turing:description "CRF抽取 (来源: EN8 )" .
+
+turing:England a turing:LOC ;
+    rdfs:label "England" ;
+    turing:description "CRF抽取 (来源: EN24, EN25, EN26 )" .
+
+turing:Ethel_Sara_Turing a turing:PER ;
+    rdfs:label "Ethel Sara Turing" ;
+    turing:description "CRF抽取 (来源: EN30 )" .
+
+turing:India a turing:LOC ;
+    rdfs:label "India" ;
+    turing:description "CRF抽取 (来源: EN30 )" .
+
+turing:John_von_Neumann a turing:PER ;
+    rdfs:label "John von Neumann" ;
+    turing:description "CRF抽取 (来源: EN15 )" .
+
+turing:Julius_Turing a turing:PER ;
+    rdfs:label "Julius Turing" ;
+    turing:description "CRF抽取 (来源: EN29 )" .
+
+turing:King_s_College a turing:LOC ;
+    rdfs:label "King's College" ;
+    turing:description "CRF抽取 (来源: EN2 )" .
+
+turing:London a turing:LOC ;
+    rdfs:label "London" ;
+    turing:description "CRF抽取 (来源: EN1 )" .
+
+turing:Manchester a turing:LOC ;
+    rdfs:label "Manchester" ;
+    turing:description "CRF抽取 (来源: EN7, EN16, EN25 )" .
+
+turing:Max_Newman a turing:PER ;
+    rdfs:label "Max Newman" ;
+    turing:description "CRF抽取 (来源: EN14 )" .
+
+turing:Milton_Keynes a turing:LOC ;
+    rdfs:label "Milton Keynes" ;
+    turing:description "CRF抽取 (来源: EN24 )" .
+
+turing:Mind a turing:PUB ;
+    rdfs:label "Mind" ;
+    turing:description "CRF抽取 (来源: EN9 )" .
+
+turing:New_Jersey a turing:LOC ;
+    rdfs:label "New Jersey" ;
+    turing:description "CRF抽取 (来源: EN22 )" .
+
+turing:Princeton a turing:LOC ;
+    rdfs:label "Princeton" ;
+    turing:description "CRF抽取 (来源: EN3, EN13, EN22 )" .
+
+turing:The_Chemical_Basis_of_Morphogenesis a turing:PUB ;
+    rdfs:label "The Chemical Basis of Morphogenesis" ;
+    turing:description "CRF抽取 (来源: EN17 )" .
+
+turing:Turing a turing:PER ;
+    rdfs:label "Turing" ;
+    turing:description "CRF抽取 (来源: EN1, EN4, EN5 )" .
+
+turing:Turing_Award a turing:PUB ;
+    rdfs:label "Turing Award" ;
+    turing:description "CRF抽取 (来源: EN18 )" .
+
+turing:United_States a turing:LOC ;
+    rdfs:label "United States" ;
+    turing:description "CRF抽取 (来源: EN22 )" .
+
+turing:Wilmslow a turing:LOC ;
+    rdfs:label "Wilmslow" ;
+    turing:description "CRF抽取 (来源: EN12, EN26 )" .
+
+turing:World_War_I a turing:EVT ;
+    rdfs:label "World War I" ;
+    turing:description "CRF抽取 (来源: EN35 )" .
+
+turing:World_War_II a turing:EVT ;
+    rdfs:label "World War II" ;
+    turing:description "CRF抽取 (来源: EN27 )" .
+
+turing:fifty___pound_banknote a turing:AWD ;
+    rdfs:label "fifty - pound banknote" ;
+    turing:description "CRF抽取 (来源: EN20 )" .
+
+turing:ontology a owl:Ontology ;
+    rdfs:comment "图灵知识图谱 - CRF 实体抽取结果" .
+
+turing:二战 a turing:EVT ;
+    rdfs:label "二战" ;
+    turing:description "CRF抽取 (来源: ZH4, ZH25 )" .
+
+turing:五十_英镑_纸币 a turing:AWD ;
+    rdfs:label "五十 英镑 纸币" ;
+    turing:description "CRF抽取 (来源: ZH19 )" .
+
+turing:伊丽莎白_二世 a turing:PER ;
+    rdfs:label "伊丽莎白 二世" ;
+    turing:description "CRF抽取 (来源: ZH18 )" .
+
+turing:伦敦 a turing:LOC ;
+    rdfs:label "伦敦" ;
+    turing:description "CRF抽取 (来源: ZH1 )" .
+
+turing:克劳德___香农 a turing:PER ;
+    rdfs:label "克劳德 · 香农" ;
+    turing:description "CRF抽取 (来源: ZH15 )" .
+
+turing:剑桥 a turing:LOC ;
+    rdfs:label "剑桥" ;
+    turing:description "CRF抽取 (来源: ZH22 )" .
+
+turing:印度 a turing:LOC ;
+    rdfs:label "印度" ;
+    turing:description "CRF抽取 (来源: ZH27 )" .
+
+turing:图灵 a turing:PER ;
+    rdfs:label "图灵" ;
+    turing:description "CRF抽取 (来源: ZH2, ZH4, ZH5 )" .
+
+turing:图灵奖 a turing:PUB ;
+    rdfs:label "图灵奖" ;
+    turing:description "CRF抽取 (来源: ZH17 )" .
+
+turing:塞尔___萨拉___图灵 a turing:PER ;
+    rdfs:label "塞尔 · 萨拉 · 图灵" ;
+    turing:description "CRF抽取 (来源: ZH28 )" .
+
+turing:大英帝国_勋章 a turing:AWD ;
+    rdfs:label "大英帝国 勋章" ;
+    turing:description "CRF抽取 (来源: ZH9 )" .
+
+turing:威尔_姆斯洛 a turing:LOC ;
+    rdfs:label "威尔 姆斯洛" ;
+    turing:description "CRF抽取 (来源: ZH11 )" .
+
+turing:布_莱切_利园 a turing:LOC ;
+    rdfs:label "布 莱切 利园" ;
+    turing:description "CRF抽取 (来源: ZH4, ZH13, ZH23 )" .
+
+turing:形态_发生_的_化学_基础 a turing:PUB ;
+    rdfs:label "形态 发生 的 化学 基础" ;
+    turing:description "CRF抽取 (来源: ZH16 )" .
+
+turing:普林斯顿 a turing:LOC ;
+    rdfs:label "普林斯顿" ;
+    turing:description "CRF抽取 (来源: ZH12, ZH21 )" .
+
+turing:曼彻斯特 a turing:LOC ;
+    rdfs:label "曼彻斯特" ;
+    turing:description "CRF抽取 (来源: ZH24 )" .
+
+turing:朱利叶_斯___图灵 a turing:PER ;
+    rdfs:label "朱利叶 斯 · 图灵" ;
+    turing:description "CRF抽取 (来源: ZH27 )" .
+
+turing:皇家 a turing:AWD ;
+    rdfs:label "皇家" ;
+    turing:description "CRF抽取 (来源: ZH18 )" .
+
+turing:约翰___冯___诺依曼 a turing:PER ;
+    rdfs:label "约翰 · 冯 · 诺依曼" ;
+    turing:description "CRF抽取 (来源: ZH14 )" .
+
+turing:艾伦___图灵 a turing:PER ;
+    rdfs:label "艾伦 · 图灵" ;
+    turing:description "CRF抽取 (来源: ZH1 )" .
+
+turing:艾伦___图灵_法案 a turing:AWD ;
+    rdfs:label "艾伦 · 图灵 法案" ;
+    turing:description "CRF抽取 (来源: ZH20 )" .
+
+turing:英格兰 a turing:LOC ;
+    rdfs:label "英格兰" ;
+    turing:description "CRF抽取 (来源: ZH23, ZH24 )" .
+
+turing:计算机_器_与_智能 a turing:PUB ;
+    rdfs:label "计算机 器 与 智能" ;
+    turing:description "CRF抽取 (来源: ZH8 )" .
+
+turing:邱奇 a turing:PER ;
+    rdfs:label "邱奇" ;
+    turing:description "CRF抽取 (来源: ZH29, ZH29 )" .
+
+turing:阿隆佐___邱奇 a turing:PER ;
+    rdfs:label "阿隆佐 · 邱奇" ;
+    turing:description "CRF抽取 (来源: ZH12 )" .
+
+turing:马克斯___纽曼 a turing:PER ;
+    rdfs:label "马克斯 · 纽曼" ;
+    turing:description "CRF抽取 (来源: ZH13 )" .
+

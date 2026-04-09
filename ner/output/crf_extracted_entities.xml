@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+   xmlns:turing="http://www.example.org/turing#"
+>
+  <rdf:Description rdf:about="http://www.example.org/turing#Claude_Shannon">
+    <rdf:type rdf:resource="http://www.example.org/turing#PER"/>
+    <rdfs:label>Claude Shannon</rdfs:label>
+    <turing:description>CRF抽取 (来源: EN16 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#ontology">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Ontology"/>
+    <rdfs:comment>图灵知识图谱 - CRF 实体抽取结果</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#Max_Newman">
+    <rdf:type rdf:resource="http://www.example.org/turing#PER"/>
+    <rdfs:label>Max Newman</rdfs:label>
+    <turing:description>CRF抽取 (来源: EN14 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#阿隆佐___邱奇">
+    <rdf:type rdf:resource="http://www.example.org/turing#PER"/>
+    <rdfs:label>阿隆佐 · 邱奇</rdfs:label>
+    <turing:description>CRF抽取 (来源: ZH12 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#New_Jersey">
+    <rdf:type rdf:resource="http://www.example.org/turing#LOC"/>
+    <rdfs:label>New Jersey</rdfs:label>
+    <turing:description>CRF抽取 (来源: EN22 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#艾伦___图灵_法案">
+    <rdf:type rdf:resource="http://www.example.org/turing#AWD"/>
+    <rdfs:label>艾伦 · 图灵 法案</rdfs:label>
+    <turing:description>CRF抽取 (来源: ZH20 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#普林斯顿">
+    <rdf:type rdf:resource="http://www.example.org/turing#LOC"/>
+    <rdfs:label>普林斯顿</rdfs:label>
+    <turing:description>CRF抽取 (来源: ZH12, ZH21 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#五十_英镑_纸币">
+    <rdf:type rdf:resource="http://www.example.org/turing#AWD"/>
+    <rdfs:label>五十 英镑 纸币</rdfs:label>
+    <turing:description>CRF抽取 (来源: ZH19 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#Julius_Turing">
+    <rdf:type rdf:resource="http://www.example.org/turing#PER"/>
+    <rdfs:label>Julius Turing</rdfs:label>
+    <turing:description>CRF抽取 (来源: EN29 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#King_s_College">
+    <rdf:type rdf:resource="http://www.example.org/turing#LOC"/>
+    <rdfs:label>King's College</rdfs:label>
+    <turing:description>CRF抽取 (来源: EN2 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#Cheshire">
+    <rdf:type rdf:resource="http://www.example.org/turing#LOC"/>
+    <rdfs:label>Cheshire</rdfs:label>
+    <turing:description>CRF抽取 (来源: EN26 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#威尔_姆斯洛">
+    <rdf:type rdf:resource="http://www.example.org/turing#LOC"/>
+    <rdfs:label>威尔 姆斯洛</rdfs:label>
+    <turing:description>CRF抽取 (来源: ZH11 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#England">
+    <rdf:type rdf:resource="http://www.example.org/turing#LOC"/>
+    <rdfs:label>England</rdfs:label>
+    <turing:description>CRF抽取 (来源: EN24, EN25, EN26 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#Turing">
+    <rdf:type rdf:resource="http://www.example.org/turing#PER"/>
+    <rdfs:label>Turing</rdfs:label>
+    <turing:description>CRF抽取 (来源: EN1, EN4, EN5 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#Mind">
+    <rdf:type rdf:resource="http://www.example.org/turing#PUB"/>
+    <rdfs:label>Mind</rdfs:label>
+    <turing:description>CRF抽取 (来源: EN9 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#剑桥">
+    <rdf:type rdf:resource="http://www.example.org/turing#LOC"/>
+    <rdfs:label>剑桥</rdfs:label>
+    <turing:description>CRF抽取 (来源: ZH22 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#fifty___pound_banknote">
+    <rdf:type rdf:resource="http://www.example.org/turing#AWD"/>
+    <rdfs:label>fifty - pound banknote</rdfs:label>
+    <turing:description>CRF抽取 (来源: EN20 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#PER">
+    <rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+    <rdfs:label>人物</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#The_Chemical_Basis_of_Morphogenesis">
+    <rdf:type rdf:resource="http://www.example.org/turing#PUB"/>
+    <rdfs:label>The Chemical Basis of Morphogenesis</rdfs:label>
+    <turing:description>CRF抽取 (来源: EN17 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#大英帝国_勋章">
+    <rdf:type rdf:resource="http://www.example.org/turing#AWD"/>
+    <rdfs:label>大英帝国 勋章</rdfs:label>
+    <turing:description>CRF抽取 (来源: ZH9 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#LOC">
+    <rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+    <rdfs:label>地点</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#Princeton">
+    <rdf:type rdf:resource="http://www.example.org/turing#LOC"/>
+    <rdfs:label>Princeton</rdfs:label>
+    <turing:description>CRF抽取 (来源: EN3, EN13, EN22 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#克劳德___香农">
+    <rdf:type rdf:resource="http://www.example.org/turing#PER"/>
+    <rdfs:label>克劳德 · 香农</rdfs:label>
+    <turing:description>CRF抽取 (来源: ZH15 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#Ethel_Sara_Turing">
+    <rdf:type rdf:resource="http://www.example.org/turing#PER"/>
+    <rdfs:label>Ethel Sara Turing</rdfs:label>
+    <turing:description>CRF抽取 (来源: EN30 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#计算机_器_与_智能">
+    <rdf:type rdf:resource="http://www.example.org/turing#PUB"/>
+    <rdfs:label>计算机 器 与 智能</rdfs:label>
+    <turing:description>CRF抽取 (来源: ZH8 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#二战">
+    <rdf:type rdf:resource="http://www.example.org/turing#EVT"/>
+    <rdfs:label>二战</rdfs:label>
+    <turing:description>CRF抽取 (来源: ZH4, ZH25 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#伊丽莎白_二世">
+    <rdf:type rdf:resource="http://www.example.org/turing#PER"/>
+    <rdfs:label>伊丽莎白 二世</rdfs:label>
+    <turing:description>CRF抽取 (来源: ZH18 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#Wilmslow">
+    <rdf:type rdf:resource="http://www.example.org/turing#LOC"/>
+    <rdfs:label>Wilmslow</rdfs:label>
+    <turing:description>CRF抽取 (来源: EN12, EN26 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#Bletchley_Park">
+    <rdf:type rdf:resource="http://www.example.org/turing#LOC"/>
+    <rdfs:label>Bletchley Park</rdfs:label>
+    <turing:description>CRF抽取 (来源: EN4, EN14, EN24 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#India">
+    <rdf:type rdf:resource="http://www.example.org/turing#LOC"/>
+    <rdfs:label>India</rdfs:label>
+    <turing:description>CRF抽取 (来源: EN30 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#曼彻斯特">
+    <rdf:type rdf:resource="http://www.example.org/turing#LOC"/>
+    <rdfs:label>曼彻斯特</rdfs:label>
+    <turing:description>CRF抽取 (来源: ZH24 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#PUB">
+    <rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+    <rdfs:label>著作</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#Church">
+    <rdf:type rdf:resource="http://www.example.org/turing#PER"/>
+    <rdfs:label>Church</rdfs:label>
+    <turing:description>CRF抽取 (来源: EN31, EN31 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#布_莱切_利园">
+    <rdf:type rdf:resource="http://www.example.org/turing#LOC"/>
+    <rdfs:label>布 莱切 利园</rdfs:label>
+    <turing:description>CRF抽取 (来源: ZH4, ZH13, ZH23 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#Turing_Award">
+    <rdf:type rdf:resource="http://www.example.org/turing#PUB"/>
+    <rdfs:label>Turing Award</rdfs:label>
+    <turing:description>CRF抽取 (来源: EN18 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#London">
+    <rdf:type rdf:resource="http://www.example.org/turing#LOC"/>
+    <rdfs:label>London</rdfs:label>
+    <turing:description>CRF抽取 (来源: EN1 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#World_War_I">
+    <rdf:type rdf:resource="http://www.example.org/turing#EVT"/>
+    <rdfs:label>World War I</rdfs:label>
+    <turing:description>CRF抽取 (来源: EN35 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#EVT">
+    <rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+    <rdfs:label>事件</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#英格兰">
+    <rdf:type rdf:resource="http://www.example.org/turing#LOC"/>
+    <rdfs:label>英格兰</rdfs:label>
+    <turing:description>CRF抽取 (来源: ZH23, ZH24 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#印度">
+    <rdf:type rdf:resource="http://www.example.org/turing#LOC"/>
+    <rdfs:label>印度</rdfs:label>
+    <turing:description>CRF抽取 (来源: ZH27 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#John_von_Neumann">
+    <rdf:type rdf:resource="http://www.example.org/turing#PER"/>
+    <rdfs:label>John von Neumann</rdfs:label>
+    <turing:description>CRF抽取 (来源: EN15 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#形态_发生_的_化学_基础">
+    <rdf:type rdf:resource="http://www.example.org/turing#PUB"/>
+    <rdfs:label>形态 发生 的 化学 基础</rdfs:label>
+    <turing:description>CRF抽取 (来源: ZH16 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#Manchester">
+    <rdf:type rdf:resource="http://www.example.org/turing#LOC"/>
+    <rdfs:label>Manchester</rdfs:label>
+    <turing:description>CRF抽取 (来源: EN7, EN16, EN25 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#Cambridge">
+    <rdf:type rdf:resource="http://www.example.org/turing#LOC"/>
+    <rdfs:label>Cambridge</rdfs:label>
+    <turing:description>CRF抽取 (来源: EN2, EN23, EN40 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#图灵奖">
+    <rdf:type rdf:resource="http://www.example.org/turing#PUB"/>
+    <rdfs:label>图灵奖</rdfs:label>
+    <turing:description>CRF抽取 (来源: ZH17 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#United_States">
+    <rdf:type rdf:resource="http://www.example.org/turing#LOC"/>
+    <rdfs:label>United States</rdfs:label>
+    <turing:description>CRF抽取 (来源: EN22 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#朱利叶_斯___图灵">
+    <rdf:type rdf:resource="http://www.example.org/turing#PER"/>
+    <rdfs:label>朱利叶 斯 · 图灵</rdfs:label>
+    <turing:description>CRF抽取 (来源: ZH27 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#Alan_Turing_Act">
+    <rdf:type rdf:resource="http://www.example.org/turing#AWD"/>
+    <rdfs:label>Alan Turing Act</rdfs:label>
+    <turing:description>CRF抽取 (来源: EN21 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#邱奇">
+    <rdf:type rdf:resource="http://www.example.org/turing#PER"/>
+    <rdfs:label>邱奇</rdfs:label>
+    <turing:description>CRF抽取 (来源: ZH29, ZH29 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#Milton_Keynes">
+    <rdf:type rdf:resource="http://www.example.org/turing#LOC"/>
+    <rdfs:label>Milton Keynes</rdfs:label>
+    <turing:description>CRF抽取 (来源: EN24 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#艾伦___图灵">
+    <rdf:type rdf:resource="http://www.example.org/turing#PER"/>
+    <rdfs:label>艾伦 · 图灵</rdfs:label>
+    <turing:description>CRF抽取 (来源: ZH1 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#图灵">
+    <rdf:type rdf:resource="http://www.example.org/turing#PER"/>
+    <rdfs:label>图灵</rdfs:label>
+    <turing:description>CRF抽取 (来源: ZH2, ZH4, ZH5 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#约翰___冯___诺依曼">
+    <rdf:type rdf:resource="http://www.example.org/turing#PER"/>
+    <rdfs:label>约翰 · 冯 · 诺依曼</rdfs:label>
+    <turing:description>CRF抽取 (来源: ZH14 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#塞尔___萨拉___图灵">
+    <rdf:type rdf:resource="http://www.example.org/turing#PER"/>
+    <rdfs:label>塞尔 · 萨拉 · 图灵</rdfs:label>
+    <turing:description>CRF抽取 (来源: ZH28 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#马克斯___纽曼">
+    <rdf:type rdf:resource="http://www.example.org/turing#PER"/>
+    <rdfs:label>马克斯 · 纽曼</rdfs:label>
+    <turing:description>CRF抽取 (来源: ZH13 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#皇家">
+    <rdf:type rdf:resource="http://www.example.org/turing#AWD"/>
+    <rdfs:label>皇家</rdfs:label>
+    <turing:description>CRF抽取 (来源: ZH18 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#AWD">
+    <rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+    <rdfs:label>奖项</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#伦敦">
+    <rdf:type rdf:resource="http://www.example.org/turing#LOC"/>
+    <rdfs:label>伦敦</rdfs:label>
+    <turing:description>CRF抽取 (来源: ZH1 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#Computing_Machinery_and_Intelligence">
+    <rdf:type rdf:resource="http://www.example.org/turing#PUB"/>
+    <rdfs:label>Computing Machinery and Intelligence</rdfs:label>
+    <turing:description>CRF抽取 (来源: EN8 )</turing:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.example.org/turing#World_War_II">
+    <rdf:type rdf:resource="http://www.example.org/turing#EVT"/>
+    <rdfs:label>World War II</rdfs:label>
+    <turing:description>CRF抽取 (来源: EN27 )</turing:description>
+  </rdf:Description>
+</rdf:RDF>

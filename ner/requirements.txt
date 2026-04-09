@@ -1,0 +1,17 @@
+# CRF 实体抽取模块依赖
+# 安装: pip install -r requirements.txt
+
+# 条件随机场 - sklearn-crfsuite 封装了 CRF++，纯 Python 实现无需编译
+sklearn-crfsuite==0.3.6
+
+# 特征提取
+scikit-learn>=1.0.0
+
+# 中文分词
+jieba>=0.42.1
+
+# HTTP 请求（爬取语料）
+requests>=2.28.0
+
+# RDF 转换
+rdflib>=6.0.0
