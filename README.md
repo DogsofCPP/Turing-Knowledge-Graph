@@ -9,13 +9,16 @@ Turing-Knowledge-Graph/
 ├── ontology/                    # 本体层
 │   ├── turing-rdfs.xml        # RDFS类层次和属性定义
 │   └── turing-owl.xml         # OWL约束定义
-├── data/                       # 实例数据
-│   ├── events.xml             # 事件实例
-│   ├── locations.xml          # 地点实例
-│   ├── publications.xml       # 学术著作实例
-│   └── awards.xml             # 荣誉奖项实例
+├── ner/                         # 命名实体识别模块
+│   ├── corpus/                # 语料库（原始文本 + BIO标注）
+│   ├── models/                # 训练好的CRF模型
+│   ├── output/                # 实体抽取结果（RDF/XML + Turtle）
+│   ├── 01_fetch_corpus.py     # 获取语料
+│   ├── 02_prepare_bio.py      # 准备BIO标注
+│   ├── 03_train_crf.py        # 训练CRF模型
+│   └── 04_extract_and_convert.py # 实体抽取并转换为RDF
+├── index.html                   # 知识图谱可视化界面
 ├── turing-full-data.xml        # 完整RDF数据集
-├── ontology.ttl               # Turtle格式本体
 └── turing-knowledge-graph.ttl  # 完整Turtle数据集
 ```
 

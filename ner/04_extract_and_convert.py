@@ -10,13 +10,19 @@ MODEL_PATH = os.path.join(BASE, "models", "turing_crf_model.pkl")
 OUTPUT_DIR = os.path.join(BASE, "output")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
+# 图灵知识图谱命名空间
 TURING = Namespace("http://www.example.org/turing#")
 
+# 加载训练好的 CRF 模型
 with open(MODEL_PATH, "rb") as f:
     crf = pickle.load(f)
 
 
 def word2features(sent, i):
+    """
+    与训练时相同的特征提取函数
+    必须保持完全一致以确保预测准确性
+    """
     word = sent[i][0]
     features = {
         "bias": 1.0, "word": word, "word.lower()": word.lower(),
@@ -61,19 +67,23 @@ def word2features(sent, i):
 
 
 def sent2features(sent):
+    """将句子转换为特征列表"""
     return [word2features(sent, i) for i in range(len(sent))]
 
 
 def tokenize_en(text):
+    """英文分词（与训练时一致）"""
     return re.findall(r"[A-Za-z]+(?:'[a-z]+)?(?:\.[A-Za-z]+)*|\d+|[.,;:!?'\"()[\]–, -]+", text)
 
 
 def tokenize_zh(text):
+    """中文分词（与训练时一致）"""
     import jieba
     return [w for w in jieba.cut(text, cut_all=False) if w.strip()]
 
 
-# 规则分类器（修正 CRF 错误）
+# 规则分类器：已知实体词典 + 后缀规则
+# 用于修正 CRF 模型可能产生的错误分类
 KNOWN_PERSONS = {
     "Alan Turing", "Turing", "Julius Turing", "Ethel Sara Turing",
     "Alonzo Church", "Church", "John von Neumann", "Claude Shannon",
@@ -94,10 +104,15 @@ KNOWN_AWARDS = {
     "Royal Society", "Order of the British Empire", "OBE",
     "royal pardon", "fifty-pound banknote", "Alan Turing Act",
 }
+# 常见姓氏后缀（辅助判断人名）
 SURNAME_SUFFIXES = {"son", "ing", "man", "ard", "ell", "ney", "art"}
 
 
 def classify(text):
+    """
+    规则分类器：基于词典和后缀规则判断实体类型
+    优先级：已知词典 > 后缀规则 > 其他
+    """
     if text in KNOWN_PERSONS: return "PER"
     if text in KNOWN_LOCATIONS: return "LOC"
     if text in KNOWN_PUBS: return "PUB"
@@ -109,6 +124,12 @@ def classify(text):
 
 
 def merge(tokens, pred):
+    """
+    合并连续同类型实体并进行规则修正
+    1. 将 B-xxx / I-xxx 序列合并为完整实体
+    2. 使用规则分类器修正错误类型
+    3. 过滤过短实体（长度<2）
+    """
     entities = []
     cur, cur_type = [], None
     for (tok, _), p in zip(tokens, pred):
@@ -135,6 +156,13 @@ def merge(tokens, pred):
 
 
 def extract(sentence, tokenize_fn):
+    """
+    对单个句子进行实体抽取
+    1. 分词
+    2. 提取特征
+    3. CRF 预测
+    4. 合并实体并修正
+    """
     tokens = tokenize_fn(sentence)
     tokens = [(t, "O") for t in tokens if t.strip()]
     if len(tokens) < 2:
@@ -145,14 +173,21 @@ def extract(sentence, tokenize_fn):
 
 
 def build_rdf(entities_dict):
+    """
+    将抽取的实体构建为 RDF 图
+    - 创建实体类型类（PER, LOC, EVT, PUB, AWD）
+    - 为每个实体创建 URI 并添加类型和标签
+    """
     g = Graph()
     g.bind("turing", TURING)
     g.bind("rdfs", RDFS)
 
+    # 本体元数据
     g.add((TURING.ontology, RDF.type, URIRef("http://www.w3.org/2002/07/owl#Ontology")))
     g.add((TURING.ontology, RDFS.comment,
            Literal("图灵知识图谱 - CRF 实体抽取结果")))
 
+    # 定义实体类型类
     for etype, label_zh in [
         ("PER", "人物"), ("LOC", "地点"), ("EVT", "事件"),
         ("PUB", "著作"), ("AWD", "奖项"),
@@ -160,11 +195,14 @@ def build_rdf(entities_dict):
         g.add((TURING[etype], RDF.type, RDFS["Class"]))
         g.add((TURING[etype], RDFS.label, Literal(label_zh)))
 
+    # 添加实体实例
     for text, info in entities_dict.items():
+        # 生成合法的 URI（替换特殊字符）
         safe_id = re.sub(r"[^A-Za-z0-9\u4e00-\u9fff]", "_", text.strip())
         uri = TURING[safe_id]
         g.add((uri, RDF.type, TURING[info["type"]]))
         g.add((uri, RDFS.label, Literal(text)))
+        # 添加描述信息（记录来源句子）
         g.add((uri, TURING.description,
                Literal(f"CRF抽取 (来源: {', '.join(info['sentences'][:3])} )")))
 
@@ -172,6 +210,13 @@ def build_rdf(entities_dict):
 
 
 def main():
+    """
+    主流程：
+    1. 加载中英文语料
+    2. 对每句话进行实体抽取
+    3. 合并中英文抽取结果
+    4. 构建 RDF 图并输出为 XML 和 Turtle 格式
+    """
     print("=" * 60)
     print("CRF 词级实体抽取 + RDF 转换")
     print("=" * 60)
@@ -181,6 +226,7 @@ def main():
 
     all_entities = {}
 
+    # 英文语料实体抽取
     with open(EN, encoding="utf-8") as f:
         sents = [l.strip().split("\t", 1)[1] for l in f if "\t" in l.strip()]
     for sid, s in enumerate(sents):
@@ -190,6 +236,7 @@ def main():
             all_entities[text]["sentences"].append(f"EN{sid+1}")
     print(f"\n[EN] {len(all_entities)} 个实体")
 
+    # 中文语料实体抽取
     with open(ZH, encoding="utf-8") as f:
         sents = [l.strip().split("\t", 1)[1] for l in f if "\t" in l.strip()]
     for sid, s in enumerate(sents):
@@ -199,7 +246,7 @@ def main():
             all_entities[text]["sentences"].append(f"ZH{sid+1}")
     print(f"[All] {len(all_entities)} 个实体（合并后）")
 
-    # 打印结果
+    # 打印抽取结果
     counts = {}
     for text, info in sorted(all_entities.items(), key=lambda x: x[1]["type"]):
         t = info["type"]
@@ -207,7 +254,7 @@ def main():
         print(f"  [{t:>12}] {text}")
     print(f"\n统计: {dict(sorted(counts.items()))}")
 
-    # 生成 RDF
+    # 构建 RDF 图并输出
     g = build_rdf(all_entities)
     out_xml = os.path.join(OUTPUT_DIR, "crf_extracted_entities.xml")
     out_ttl = os.path.join(OUTPUT_DIR, "crf_extracted_entities.ttl")
