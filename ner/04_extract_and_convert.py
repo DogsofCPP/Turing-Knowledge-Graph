@@ -1,268 +1,203 @@
 """
-使用 CRF 模型进行实体抽取并转换为 RDF
-词级版本（与训练对齐）
+bio_turing_*.txt 标注语料 → RDF XML
+格式与 turing-full-data.xml 一致
 """
-import os, re, pickle
-from rdflib import Graph, Namespace, URIRef, Literal, RDF, RDFS
+import os, re
 
 BASE = os.path.dirname(__file__)
-MODEL_PATH = os.path.join(BASE, "models", "turing_crf_model.pkl")
 OUTPUT_DIR = os.path.join(BASE, "output")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-# 图灵知识图谱命名空间
-TURING = Namespace("http://www.example.org/turing#")
+CRF_TYPE_MAP = {"PER": "Person", "LOC": "City", "EVT": "HistoricalEvent", "PUB": "Paper", "AWD": "Award"}
 
-# 加载训练好的 CRF 模型
-with open(MODEL_PATH, "rb") as f:
-    crf = pickle.load(f)
-
-
-def word2features(sent, i):
-    """
-    与训练时相同的特征提取函数
-    必须保持完全一致以确保预测准确性
-    """
-    word = sent[i][0]
-    features = {
-        "bias": 1.0, "word": word, "word.lower()": word.lower(),
-        "word.isupper()": word.isupper(), "word.istitle()": word.istitle(),
-        "word.isdigit()": word.isdigit(),
-        "word.hasdigit": bool(re.search(r"\d", word)),
-        "word[:2]": word[:2] if len(word) > 1 else word,
-        "word[-2:]": word[-2:] if len(word) > 1 else word,
-        "word[:3]": word[:3] if len(word) > 2 else word,
-        "word[-3:]": word[-3:] if len(word) > 2 else word,
-    }
-    if i > 1:
-        w2 = sent[i - 2][0]
-        features["word-2"] = w2
-        features["word-2.istitle()"] = w2.istitle()
-        features["word-2[-2:]"] = w2[-2:] if len(w2) > 1 else w2
-    else: features["word-2"] = "BOS"
-    if i > 0:
-        w1 = sent[i - 1][0]
-        features["word-1"] = w1
-        features["word-1.istitle()"] = w1.istitle()
-        features["word-1[-2:]"] = w1[-2:] if len(w1) > 1 else w1
-    else: features["word-1"] = "BOS"
-    if i < len(sent) - 1:
-        w1 = sent[i + 1][0]
-        features["word+1"] = w1
-        features["word+1.istitle()"] = w1.istitle()
-        features["word+1[-2:]"] = w1[-2:] if len(w1) > 1 else w1
-    else: features["word+1"] = "EOS"
-    if i < len(sent) - 2:
-        w2 = sent[i + 2][0]
-        features["word+2"] = w2
-        features["word+2.istitle()"] = w2.istitle()
-        features["word+2[-2:]"] = w2[-2:] if len(w2) > 1 else w2
-    else: features["word+2"] = "EOS"
-    if i > 0 and i < len(sent) - 1:
-        features["word-1+word"] = sent[i - 1][0] + "_" + word
-        features["word+word+1"] = word + "_" + sent[i + 1][0]
-    if i > 1:
-        features["word-2+word-1"] = sent[i - 2][0] + "_" + sent[i - 1][0]
-    return features
-
-
-def sent2features(sent):
-    """将句子转换为特征列表"""
-    return [word2features(sent, i) for i in range(len(sent))]
-
-
-def tokenize_en(text):
-    """英文分词（与训练时一致）"""
-    return re.findall(r"[A-Za-z]+(?:'[a-z]+)?(?:\.[A-Za-z]+)*|\d+|[.,;:!?'\"()[\]–, -]+", text)
-
-
-def tokenize_zh(text):
-    """中文分词（与训练时一致）"""
-    import jieba
-    return [w for w in jieba.cut(text, cut_all=False) if w.strip()]
-
-
-# 规则分类器：已知实体词典 + 后缀规则
-# 用于修正 CRF 模型可能产生的错误分类
-KNOWN_PERSONS = {
-    "Alan Turing", "Turing", "Julius Turing", "Ethel Sara Turing",
-    "Alonzo Church", "Church", "John von Neumann", "Claude Shannon",
-    "Max Newman", "Newman", "Queen Elizabeth II",
+COUNTRY_MAP = {
+    "England": "英国", "India": "印度", "New Jersey": "美国", "United States": "美国",
+    "Milton Keynes": "英国", "Cheshire": "英国",
+    "伦敦": "英国", "英格兰": "英国", "剑桥": "英国", "普林斯顿": "美国",
+    "曼彻斯特": "英国", "布莱切利园": "英国", "威尔姆斯洛": "英国",
+    "印度": "印度", "柴郡": "英国", "米尔顿凯恩斯": "英国", "布莱切利": "英国",
 }
-KNOWN_LOCATIONS = {
-    "London", "Maida Vale", "Cambridge", "Princeton", "Bletchley Park",
-    "Manchester", "Wilmslow", "Cheshire", "India", "Bletchley", "England",
-    "Milton Keynes", "New Jersey", "United States", "King's College",
-    "Trinity College",
-}
-KNOWN_PUBS = {
-    "On Computable Numbers", "Computing Machinery and Intelligence",
-    "The Chemical Basis of Morphogenesis", "Mind",
-    "Automatic Computing Engine", "ACE", "Turing Award",
-}
-KNOWN_AWARDS = {
-    "Royal Society", "Order of the British Empire", "OBE",
-    "royal pardon", "fifty-pound banknote", "Alan Turing Act",
-}
-# 常见姓氏后缀（辅助判断人名）
-SURNAME_SUFFIXES = {"son", "ing", "man", "ard", "ell", "ney", "art"}
+
+AWARD_KEYWORDS = ["奖", "奖章", "勋章", "赦免", "纸币", "Award", "medal", "pardon", "banknote", "Act", "Royal", "皇家"]
+REPORT_KEYWORDS = ["设计", "design", "Design", "ACE", "报告"]
 
 
-def classify(text):
-    """
-    规则分类器：基于词典和后缀规则判断实体类型
-    优先级：已知词典 > 后缀规则 > 其他
-    """
-    if text in KNOWN_PERSONS: return "PER"
-    if text in KNOWN_LOCATIONS: return "LOC"
-    if text in KNOWN_PUBS: return "PUB"
-    if text in KNOWN_AWARDS: return "AWD"
-    if text in ("World War II", "World War I"): return "EVT"
-    lower = text.lower()
-    if any(lower.endswith(s) for s in SURNAME_SUFFIXES): return "PER"
-    return None
+def parse_bio(fp):
+    sents = []
+    for block in open(fp, encoding="utf-8").read().split("\n\n"):
+        tokens, labs = [], []
+        for line in block.strip().split("\n"):
+            p = line.split("\t")
+            tok = (p[0].strip() if p else "")
+            lab = p[1].strip() if len(p) == 2 else "O"
+            if tok:
+                tokens.append(tok); labs.append(lab)
+        if not tokens: continue
+        entities = {}
+        cur, ct = [], None
+        for tok, lab in zip(tokens, labs):
+            if lab.startswith("B-"):
+                if ct: entities["".join(cur)] = ct
+                cur, ct = [tok], lab[2:]
+            elif lab.startswith("I-") and ct:
+                cur.append(tok)
+            else:
+                if ct: entities["".join(cur)] = ct
+                cur, ct = [], None
+        if ct: entities["".join(cur)] = ct
+        sents.append(("".join(tokens), entities))
+    return sents
 
 
-def merge(tokens, pred):
-    """
-    合并连续同类型实体并进行规则修正
-    1. 将 B-xxx / I-xxx 序列合并为完整实体
-    2. 使用规则分类器修正错误类型
-    3. 过滤过短实体（长度<2）
-    """
-    entities = []
-    cur, cur_type = [], None
-    for (tok, _), p in zip(tokens, pred):
-        if p.startswith("B-"):
-            if cur_type:
-                entities.append((" ".join(cur), cur_type))
-            cur, cur_type = [tok], p[2:]
-        elif p.startswith("I-") and cur_type:
-            cur.append(tok)
-        else:
-            if cur_type:
-                entities.append((" ".join(cur), cur_type))
-            cur, cur_type = [], None
-    if cur_type:
-        entities.append((" ".join(cur), cur_type))
-    # 规则修正
-    result = []
-    for text, etype in entities:
-        if len(text.strip()) < 2:
-            continue
-        rule = classify(text)
-        result.append((text.strip(), rule or etype))
-    return result
+def uid(label):
+    s = re.sub(r"[\s·]+", "_", label.strip())
+    s = re.sub(r"[^A-Za-z0-9_\u4e00-\u9fff]", "", s).strip("_")
+    return ("N" + s) if s and s[0].isdigit() else s
 
 
-def extract(sentence, tokenize_fn):
-    """
-    对单个句子进行实体抽取
-    1. 分词
-    2. 提取特征
-    3. CRF 预测
-    4. 合并实体并修正
-    """
-    tokens = tokenize_fn(sentence)
-    tokens = [(t, "O") for t in tokens if t.strip()]
-    if len(tokens) < 2:
-        return []
-    features = sent2features(tokens)
-    pred = crf.predict([features])[0]
-    return merge(tokens, pred)
+def subclass(label, base):
+    if base == "City": return "City"
+    if base == "Paper": return "TechnicalReport" if any(k in label for k in REPORT_KEYWORDS) else "Paper"
+    if base == "Award": return "HonoraryTitle" if any(k in label for k in AWARD_KEYWORDS) else "AcademicAward"
+    return base
 
 
-def build_rdf(entities_dict):
-    """
-    将抽取的实体构建为 RDF 图
-    - 创建实体类型类（PER, LOC, EVT, PUB, AWD）
-    - 为每个实体创建 URI 并添加类型和标签
-    """
-    g = Graph()
-    g.bind("turing", TURING)
-    g.bind("rdfs", RDFS)
+def infer(label, etype, sent):
+    attrs = {}
+    if etype in ("Paper", "TechnicalReport"):
+        m = re.search(r"(\d{4})\s*年", sent) or re.search(r"in\s+(\d{4})", sent)
+        if m: attrs["publicationYear"] = m.group(1)
+    elif etype in ("AcademicAward", "HonoraryTitle"):
+        m = re.search(r"(\d{4})\s*年", sent) or re.search(r"in\s+(\d{4})", sent)
+        if m: attrs["awardYear"] = m.group(1)
+    elif etype == "City":
+        for n, c in COUNTRY_MAP.items():
+            if n in label or label in n: attrs["country"] = c; break
+    return attrs
 
-    # 本体元数据
-    g.add((TURING.ontology, RDF.type, URIRef("http://www.w3.org/2002/07/owl#Ontology")))
-    g.add((TURING.ontology, RDFS.comment,
-           Literal("图灵知识图谱 - CRF 实体抽取结果")))
 
-    # 定义实体类型类
-    for etype, label_zh in [
-        ("PER", "人物"), ("LOC", "地点"), ("EVT", "事件"),
-        ("PUB", "著作"), ("AWD", "奖项"),
-    ]:
-        g.add((TURING[etype], RDF.type, RDFS["Class"]))
-        g.add((TURING[etype], RDFS.label, Literal(label_zh)))
+def person_rels(label, all_sents):
+    rels, seen = [], set()
+    for _, ents in all_sents:
+        # 匹配句中含"图灵"的人（中文全名/简称）或英文"Turing"
+        match = label in ents
+        if not match:
+            if "图灵" in label:
+                match = any("图灵" in k for k in ents if ents.get(k) == "PER")
+            elif label == "AlanTuring":
+                match = "Turing" in ents
+        if not match: continue
+        pred_map = {"EVT": "participatedIn", "PUB": "wrote", "AWD": "received"}
+        for en, ct in ents.items():
+            if ct not in pred_map: continue
+            key = (pred_map[ct], uid(en))
+            if key not in seen and key[1]:
+                seen.add(key); rels.append(key)
+    return rels
 
-    # 添加实体实例
-    for text, info in entities_dict.items():
-        # 生成合法的 URI（替换特殊字符）
-        safe_id = re.sub(r"[^A-Za-z0-9\u4e00-\u9fff]", "_", text.strip())
-        uri = TURING[safe_id]
-        g.add((uri, RDF.type, TURING[info["type"]]))
-        g.add((uri, RDFS.label, Literal(text)))
-        # 添加描述信息（记录来源句子）
-        g.add((uri, TURING.description,
-               Literal(f"CRF抽取 (来源: {', '.join(info['sentences'][:3])} )")))
 
-    return g
+def build_person_rels_merged(all_sents):
+    """合并中文+英文，收集所有图灵相关的关系"""
+    rels, seen = [], set()
+    for _, ents in all_sents:
+        has_turing = any(
+            ("图灵" in k or k == "Turing")
+            for k in ents if ents.get(k) == "PER"
+        )
+        if not has_turing: continue
+        pred_map = {"EVT": "participatedIn", "PUB": "wrote", "AWD": "received"}
+        for en, ct in ents.items():
+            if ct not in pred_map: continue
+            key = (pred_map[ct], uid(en))
+            if key not in seen and key[1]:
+                seen.add(key); rels.append(key)
+    return rels
+
+
+def build_xml(entities, all_sents):
+    lines = ['<?xml version="1.0" encoding="UTF-8"?>',
+             '<rdf:RDF',
+             '    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"',
+             '    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"',
+             '    xmlns:owl="http://www.w3.org/2002/07/owl#"',
+             '    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"',
+             '    xmlns:turing="http://www.example.org/turing#"',
+             '    xml:base="http://www.example.org/turing">',
+             '',
+             '    <owl:Ontology rdf:about="http://www.example.org/turing"/>',
+             '']
+
+    type_order = list(CRF_TYPE_MAP.keys())
+    sorted_ents = sorted(entities.items(),
+                        key=lambda x: type_order.index(x[1]["type"]) if x[1]["type"] in type_order else 99)
+
+    for label, info in sorted_ents:
+        crf_type = info["type"]
+        if crf_type not in CRF_TYPE_MAP: continue
+        label = label.strip()
+        if not label or len(label) <= 1: continue
+        # 只保留艾伦·图灵 一个人物（AlanTuring 不单独输出）
+        if crf_type == "PER" and label not in ("艾伦·图灵",): continue
+
+        base = CRF_TYPE_MAP[crf_type]
+        etype = subclass(label, base)
+        u = uid(label)
+        if not u: continue
+
+        sent = info.get("sentence", "")
+        attrs = infer(label, etype, sent)
+        # 人物节点只输出"艾伦·图灵"一个，中英文关系合并
+        rels = build_person_rels_merged(all_sents) if etype == "Person" else []
+
+        lines.append(f'    <turing:{etype} rdf:ID="NER_{u}">')
+        lines.append(f'        <rdfs:label>{label}</rdfs:label>')
+        if "publicationYear" in attrs:
+            lines.append(f'        <turing:publicationYear rdf:datatype="http://www.w3.org/2001/XMLSchema#gYear">{attrs["publicationYear"]}</turing:publicationYear>')
+        if "awardYear" in attrs:
+            lines.append(f'        <turing:awardYear rdf:datatype="http://www.w3.org/2001/XMLSchema#gYear">{attrs["awardYear"]}</turing:awardYear>')
+        if "country" in attrs:
+            lines.append(f'        <turing:country>{attrs["country"]}</turing:country>')
+        for p, t in rels:
+            lines.append(f'        <turing:{p} rdf:resource="#NER_{t}"/>')
+        lines.append(f'    </turing:{etype}>')
+        lines.append('')
+
+    lines.append('</rdf:RDF>')
+    return "\n".join(lines)
 
 
 def main():
-    """
-    主流程：
-    1. 加载中英文语料
-    2. 对每句话进行实体抽取
-    3. 合并中英文抽取结果
-    4. 构建 RDF 图并输出为 XML 和 Turtle 格式
-    """
-    print("=" * 60)
-    print("CRF 词级实体抽取 + RDF 转换")
-    print("=" * 60)
+    print("CRF 标注语料 → RDF XML（与 turing-full-data.xml 格式一致）")
 
-    EN = os.path.join(BASE, "corpus", "raw_turing_en.txt")
-    ZH = os.path.join(BASE, "corpus", "raw_turing_zh.txt")
+    entities, all_sents, file_sents = {}, [], {}
+    for fname in ["bio_turing_zh.txt", "bio_turing_en.txt"]:
+        fp = os.path.join(BASE, "corpus", fname)
+        if not os.path.exists(fp): continue
+        sents = parse_bio(fp)
+        file_sents[fname] = len(sents)
+        for st, ents in sents:
+            all_sents.append((st, ents))
+            for t, ct in ents.items():
+                if t not in entities:
+                    entities[t] = {"type": ct, "sentence": ""}
+                if not entities[t]["sentence"]:
+                    entities[t]["sentence"] = st
 
-    all_entities = {}
+    for fname, n in file_sents.items():
+        print(f"[{fname}] {n} 句子")
 
-    # 英文语料实体抽取
-    with open(EN, encoding="utf-8") as f:
-        sents = [l.strip().split("\t", 1)[1] for l in f if "\t" in l.strip()]
-    for sid, s in enumerate(sents):
-        for text, etype in extract(s, tokenize_en):
-            if text not in all_entities:
-                all_entities[text] = {"type": etype, "sentences": []}
-            all_entities[text]["sentences"].append(f"EN{sid+1}")
-    print(f"\n[EN] {len(all_entities)} 个实体")
-
-    # 中文语料实体抽取
-    with open(ZH, encoding="utf-8") as f:
-        sents = [l.strip().split("\t", 1)[1] for l in f if "\t" in l.strip()]
-    for sid, s in enumerate(sents):
-        for text, etype in extract(s, tokenize_zh):
-            if text not in all_entities:
-                all_entities[text] = {"type": etype, "sentences": []}
-            all_entities[text]["sentences"].append(f"ZH{sid+1}")
-    print(f"[All] {len(all_entities)} 个实体（合并后）")
-
-    # 打印抽取结果
     counts = {}
-    for text, info in sorted(all_entities.items(), key=lambda x: x[1]["type"]):
+    for info in entities.values():
         t = info["type"]
+        if t == "PER" and info.get("sentence", ""):
+            if not any(k in entities for k in ("艾伦·图灵", "AlanTuring")): continue
         counts[t] = counts.get(t, 0) + 1
-        print(f"  [{t:>12}] {text}")
-    print(f"\n统计: {dict(sorted(counts.items()))}")
+    print(f"共 {len(entities)} 个实体: {dict(sorted(counts.items()))}")
 
-    # 构建 RDF 图并输出
-    g = build_rdf(all_entities)
-    out_xml = os.path.join(OUTPUT_DIR, "crf_extracted_entities.xml")
-    out_ttl = os.path.join(OUTPUT_DIR, "crf_extracted_entities.ttl")
-    g.serialize(out_xml, format="xml")
-    g.serialize(out_ttl, format="turtle")
-    print(f"\nRDF/XML: {out_xml}")
-    print(f"Turtle: {out_ttl}")
-    print(f"三元组总数: {len(g)}")
+    out = os.path.join(OUTPUT_DIR, "crf_extracted_entities.xml")
+    with open(out, "w", encoding="utf-8") as f:
+        f.write(build_xml(entities, all_sents))
+    print(f"已生成: {out}")
 
 
 if __name__ == "__main__":

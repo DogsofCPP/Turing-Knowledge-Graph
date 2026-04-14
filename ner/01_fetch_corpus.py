@@ -7,9 +7,6 @@ import re
 import json
 import os
 
-OUTPUT = os.path.join(os.path.dirname(__file__), "corpus", "raw_turing.txt")
-
-
 def fetch_wikipedia_page(title: str) -> str:
     """
     调用 Wikipedia REST API 获取指定词条的纯文本内容
@@ -105,7 +102,7 @@ def main():
         f.write(combined)
     print(f"英文语料已保存: {output_en} ({len(en_sentences)} 句)")
 
-    # 中文语料（辅助，可选）
+    # 中文语料
     try:
         zh_text = fetch_wikipedia_page_zh("艾伦·图灵")
         zh_sentences = split_into_sentences(zh_text)

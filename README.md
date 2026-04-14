@@ -37,8 +37,6 @@ turing-rdfs.xml  ── owl:imports ──▶  turing-owl.xml  ── owl:import
 03_train_crf.py             CRF 特征工程 + 训练 → turing_crf_model.pkl
         ↓
 04_extract_and_convert.py   实体抽取 → crf_extracted_entities.xml/ttl
-        ↓
-05_integrate_ner.py         类型映射 + 噪音过滤 → ner_integrated_instances.xml
                                  PER → Person
                                  LOC → Location (实例用 City)
                                  EVT → HistoricalEvent
