@@ -1,6 +1,10 @@
 """
-bio_turing_*.txt 标注语料 → RDF XML
-格式与 turing-full-data.xml 一致
+CRF 实体抽取 → RDF XML
+格式与 turing-full-data.xml 一致：
+- <turing:Type rdf:ID="..."> 直接元素形式
+- 人物关联事件/著作/奖项（participatedIn / wrote / received）
+- 中英文重复实体合并，标签优先中文
+- 事件细分为 PersonalEvent / AcademicEvent / HistoricalEvent
 """
 import os, re
 
@@ -20,6 +24,78 @@ COUNTRY_MAP = {
 
 AWARD_KEYWORDS = ["奖", "奖章", "勋章", "赦免", "纸币", "Award", "medal", "pardon", "banknote", "Act", "Royal", "皇家"]
 REPORT_KEYWORDS = ["设计", "design", "Design", "ACE", "报告"]
+
+# 中英文实体合并映射：key → (canonical_id, label)
+# 英文 key → 英文 ID + 中文 label（中文优先作为显示标签）
+# 中文 key 也直接映射到同一 canonical_id
+MERGE_MAP = {
+    # 位置
+    "London": ("Location_London", "伦敦"),
+    "伦敦": ("Location_London", "伦敦"),
+    "Cambridge": ("Location_Cambridge", "剑桥"),
+    "剑桥": ("Location_Cambridge", "剑桥"),
+    "Princeton": ("Location_Princeton", "普林斯顿"),
+    "普林斯顿": ("Location_Princeton", "普林斯顿"),
+    "Manchester": ("Location_Manchester", "曼彻斯特"),
+    "曼彻斯特": ("Location_Manchester", "曼彻斯特"),
+    "Wilmslow": ("Location_Wilmslow", "威尔姆斯洛"),
+    "威尔姆斯洛": ("Location_Wilmslow", "威尔姆斯洛"),
+    "BletchleyPark": ("Location_Bletchley", "布莱切利"),
+    "布莱切利园": ("Location_Bletchley", "布莱切利"),
+    "England": ("Location_England", "英格兰"),
+    "英格兰": ("Location_England", "英格兰"),
+    "India": ("Location_India", "印度"),
+    "科钦": ("Location_Kochi", "科钦"),
+    "NewJersey": ("Location_NewJersey", "新泽西"),
+    "New Jersey": ("Location_NewJersey", "新泽西"),
+    "UnitedStates": ("Location_UnitedStates", "美国"),
+    "United States": ("Location_UnitedStates", "美国"),
+    "MiltonKeynes": ("Location_MiltonKeynes", "米尔顿凯恩斯"),
+    "Milton Keynes": ("Location_MiltonKeynes", "米尔顿凯恩斯"),
+    "Cheshire": ("Location_Cheshire", "柴郡"),
+    # 学院/大学
+    "King'sCollege": ("Location_KingsCollege", "剑桥大学国王学院"),
+    "TrinityCollege": ("Location_TrinityCollege", "剑桥大学三一学院"),
+    # 事件
+    "WorldWarII": ("Event_WorldWarII", "二战"),
+    "二战": ("Event_WorldWarII", "二战"),
+    "WorldWarI": ("Event_WorldWarI", "一战"),
+    "一战": ("Event_WorldWarI", "一战"),
+    # 论文/著作
+    "ACE": ("Publication_ACE", "自动计算引擎"),
+    "自动计算引擎": ("Publication_ACE", "自动计算引擎"),
+    "ComputingMachineryandIntelligence": ("Publication_ComputingMachineryandIntelligence", "计算机器与智能"),
+    "计算机器与智能": ("Publication_ComputingMachineryandIntelligence", "计算机器与智能"),
+    "Mind": ("Publication_ComputingMachineryandIntelligence", "计算机器与智能"),
+    "TheChemicalBasisofMorphogenesis": ("Publication_ChemicalBasisofMorphogenesis", "形态发生的化学基础"),
+    "形态发生的化学基础": ("Publication_ChemicalBasisofMorphogenesis", "形态发生的化学基础"),
+    "TuringAward": ("Publication_TuringAward", "图灵奖"),
+    "图灵奖": ("Publication_TuringAward", "图灵奖"),
+    # 奖项/荣誉
+    "OBE": ("Award_OBE", "大英帝国勋章"),
+    "大英帝国勋章": ("Award_OBE", "大英帝国勋章"),
+    "RoyalSociety": ("Award_RoyalSociety", "英国皇家学会"),
+    "英国皇家学会": ("Award_RoyalSociety", "英国皇家学会"),
+    "royalpardon": ("Award_RoyalPardon", "皇家赦免"),
+    "皇家": ("Award_RoyalPardon", "皇家赦免"),
+    "fifty-poundbanknote": ("Award_FiftyPoundBanknote", "五十英镑纸币"),
+    "五十英镑纸币": ("Award_FiftyPoundBanknote", "五十英镑纸币"),
+    "AlanTuringAct": ("Award_TuringAct", "艾伦·图灵法案"),
+    "艾伦·图灵法案": ("Award_TuringAct", "艾伦·图灵法案"),
+}
+
+# 中文 key → ID 前缀
+ID_PREFIX = {
+    "Person": "AlanTuring",
+    "Location": "Location_",
+    "Event": "Event_",
+    "Publication": "Publication_",
+    "Award": "Award_",
+    "AcademicAward": "Award_",
+    "HonoraryTitle": "Award_",
+    "TechnicalReport": "Publication_",
+    "Paper": "Publication_",
+}
 
 
 def parse_bio(fp):
@@ -70,35 +146,58 @@ def infer(label, etype, sent):
     elif etype in ("AcademicAward", "HonoraryTitle"):
         m = re.search(r"(\d{4})\s*年", sent) or re.search(r"in\s+(\d{4})", sent)
         if m: attrs["awardYear"] = m.group(1)
+    elif etype in ("PersonalEvent", "AcademicEvent", "HistoricalEvent"):
+        m = re.search(r"(\d{4})\s*年", sent) or re.search(r"in\s+(\d{4})", sent)
+        if m: attrs["eventDate"] = m.group(1) + "-01-01"
     elif etype == "City":
         for n, c in COUNTRY_MAP.items():
             if n in label or label in n: attrs["country"] = c; break
     return attrs
 
 
-def person_rels(label, all_sents):
-    rels, seen = [], set()
-    for _, ents in all_sents:
-        # 匹配句中含"图灵"的人（中文全名/简称）或英文"Turing"
-        match = label in ents
-        if not match:
-            if "图灵" in label:
-                match = any("图灵" in k for k in ents if ents.get(k) == "PER")
-            elif label == "AlanTuring":
-                match = "Turing" in ents
-        if not match: continue
-        pred_map = {"EVT": "participatedIn", "PUB": "wrote", "AWD": "received"}
-        for en, ct in ents.items():
-            if ct not in pred_map: continue
-            key = (pred_map[ct], uid(en))
-            if key not in seen and key[1]:
-                seen.add(key); rels.append(key)
-    return rels
+def event_subclass(label):
+    """根据事件名称推断细分类型"""
+    personal_kw = ["出生", "逝世", "死亡", "审判", "审判", "Trial", "Death", "Birth", "Trial", "prosecuted"]
+    academic_kw = ["论文", "入学", "博士", "获奖", "发表", "报告", "设计", "Paper", "PhD", "Award", "published", "elected", "received"]
+    for kw in personal_kw:
+        if kw in label: return "PersonalEvent"
+    for kw in academic_kw:
+        if kw in label: return "AcademicEvent"
+    return "HistoricalEvent"
+
+
+def merge_entities(entities):
+    """
+    合并中英文重复实体，优先保留中文 label。
+    返回：{canonical_id: {"type": ..., "sentence": ..., "label": ..., "id": ...}}
+    """
+    merged = {}
+
+    for key, info in entities.items():
+        if key in MERGE_MAP:
+            canonical_id, canonical_label = MERGE_MAP[key]
+        else:
+            canonical_id = key
+            canonical_label = key
+
+        if canonical_id not in merged:
+            merged[canonical_id] = {"type": info["type"], "sentence": info.get("sentence", ""), "label": canonical_label}
+        else:
+            # 优先保留中文 label
+            existing_zh = any("\u4e00" <= c <= "\u9fff" for c in merged[canonical_id].get("label", ""))
+            new_zh = any("\u4e00" <= c <= "\u9fff" for c in canonical_label)
+            if new_zh and not existing_zh:
+                merged[canonical_id]["label"] = canonical_label
+            if not merged[canonical_id]["sentence"] and info.get("sentence"):
+                merged[canonical_id]["sentence"] = info.get("sentence", "")
+
+    return merged
 
 
 def build_person_rels_merged(all_sents):
-    """合并中文+英文，收集所有图灵相关的关系"""
-    rels, seen = [], set()
+    """合并中英文，收集所有图灵相关的关系"""
+    rels = {}  # pred -> list of (uri_id, label)
+    seen = set()
     for _, ents in all_sents:
         has_turing = any(
             ("图灵" in k or k == "Turing")
@@ -108,96 +207,171 @@ def build_person_rels_merged(all_sents):
         pred_map = {"EVT": "participatedIn", "PUB": "wrote", "AWD": "received"}
         for en, ct in ents.items():
             if ct not in pred_map: continue
-            key = (pred_map[ct], uid(en))
-            if key not in seen and key[1]:
-                seen.add(key); rels.append(key)
+            if en in MERGE_MAP:
+                uri_id, label = MERGE_MAP[en]
+            else:
+                uri_id = en
+                label = en
+            key = (pred_map[ct], uri_id)
+            if key not in seen and uri_id:
+                seen.add(key)
+                rels.setdefault(pred_map[ct], []).append((uri_id, label))
     return rels
 
 
-def build_xml(entities, all_sents):
-    lines = ['<?xml version="1.0" encoding="UTF-8"?>',
-             '<rdf:RDF',
-             '    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"',
-             '    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"',
-             '    xmlns:owl="http://www.w3.org/2002/07/owl#"',
-             '    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"',
-             '    xmlns:turing="http://www.example.org/turing#"',
-             '    xml:base="http://www.example.org/turing">',
-             '',
-             '    <owl:Ontology rdf:about="http://www.example.org/turing"/>',
-             '']
+def build_xml(entities_merged, all_sents):
+    lines = []
+    lines.append('<?xml version="1.0" encoding="UTF-8"?>')
+    lines.append('<!--')
+    lines.append('    图灵知识图谱 · CRF 实体抽取实例（第 3 层）')
+    lines.append('    由 04_extract_and_convert.py 自动生成')
+    lines.append('    来源：bio_turing_zh.txt + bio_turing_en.txt 标注语料')
+    lines.append('-->')
+    lines.append('<rdf:RDF')
+    lines.append('    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"')
+    lines.append('    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"')
+    lines.append('    xmlns:owl="http://www.w3.org/2002/07/owl#"')
+    lines.append('    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"')
+    lines.append('    xmlns:turing="http://www.example.org/turing#"')
+    lines.append('    xml:base="http://www.example.org/turing">')
+    lines.append('')
+    lines.append('    <!-- ==================== 本体声明 ==================== -->')
+    lines.append('    <owl:Ontology rdf:about="http://www.example.org/turing">')
+    lines.append('        <rdfs:comment>CRF 实体抽取实例层 - bio_turing 标注语料</rdfs:comment>')
+    lines.append('    </owl:Ontology>')
+    lines.append('')
+    lines.append('    <!-- ==================== CRF 抽取实体实例 ==================== -->')
+    lines.append('')
 
-    type_order = list(CRF_TYPE_MAP.keys())
-    sorted_ents = sorted(entities.items(),
-                        key=lambda x: type_order.index(x[1]["type"]) if x[1]["type"] in type_order else 99)
+    all_rels = build_person_rels_merged(all_sents)
 
-    for label, info in sorted_ents:
-        crf_type = info["type"]
-        if crf_type not in CRF_TYPE_MAP: continue
-        label = label.strip()
-        if not label or len(label) <= 1: continue
-        # 只保留艾伦·图灵 一个人物（AlanTuring 不单独输出）
-        if crf_type == "PER" and label not in ("艾伦·图灵",): continue
+    type_counter = {}
+    type_order = ["PER", "EVT", "LOC", "PUB", "AWD"]
 
-        base = CRF_TYPE_MAP[crf_type]
-        etype = subclass(label, base)
-        u = uid(label)
-        if not u: continue
+    for crf_type in type_order:
+        for key, info in sorted(entities_merged.items(), key=lambda x: x[0]):
+            if info["type"] != crf_type: continue
+            label = info.get("label", key)
+            label = label.strip()
+            if not label or len(label) <= 1: continue
 
-        sent = info.get("sentence", "")
-        attrs = infer(label, etype, sent)
-        # 人物节点只输出"艾伦·图灵"一个，中英文关系合并
-        rels = build_person_rels_merged(all_sents) if etype == "Person" else []
+            # 只保留艾伦·图灵一个人物
+            if crf_type == "PER" and label != "艾伦·图灵": continue
 
-        lines.append(f'    <turing:{etype} rdf:ID="NER_{u}">')
-        lines.append(f'        <rdfs:label>{label}</rdfs:label>')
-        if "publicationYear" in attrs:
-            lines.append(f'        <turing:publicationYear rdf:datatype="http://www.w3.org/2001/XMLSchema#gYear">{attrs["publicationYear"]}</turing:publicationYear>')
-        if "awardYear" in attrs:
-            lines.append(f'        <turing:awardYear rdf:datatype="http://www.w3.org/2001/XMLSchema#gYear">{attrs["awardYear"]}</turing:awardYear>')
-        if "country" in attrs:
-            lines.append(f'        <turing:country>{attrs["country"]}</turing:country>')
-        for p, t in rels:
-            lines.append(f'        <turing:{p} rdf:resource="#NER_{t}"/>')
-        lines.append(f'    </turing:{etype}>')
-        lines.append('')
+            base = CRF_TYPE_MAP[crf_type]
+            exact_type = subclass(label, base)
+            if exact_type == "HistoricalEvent":
+                exact_type = event_subclass(label)
 
+            sent = info.get("sentence", "")
+
+            # 确定 ID
+            if crf_type == "PER":
+                u = "AlanTuring"
+                out_label = "艾伦·图灵"
+            else:
+                u = key
+                out_label = label
+
+            if not u: continue
+            type_counter[exact_type] = type_counter.get(exact_type, 0) + 1
+            attrs = infer(label, exact_type, sent)
+
+            lines.append(f'    <turing:{exact_type} rdf:ID="{u}">')
+            lines.append(f'        <rdfs:label>{out_label}</rdfs:label>')
+
+            if "eventDate" in attrs:
+                lines.append(f'        <turing:eventDate rdf:datatype="http://www.w3.org/2001/XMLSchema#date">{attrs["eventDate"]}</turing:eventDate>')
+            if "publicationYear" in attrs:
+                lines.append(f'        <turing:publicationYear rdf:datatype="http://www.w3.org/2001/XMLSchema#gYear">{attrs["publicationYear"]}</turing:publicationYear>')
+            if "awardYear" in attrs:
+                lines.append(f'        <turing:awardYear rdf:datatype="http://www.w3.org/2001/XMLSchema#gYear">{attrs["awardYear"]}</turing:awardYear>')
+            if "country" in attrs:
+                lines.append(f'        <turing:country>{attrs["country"]}</turing:country>')
+
+            # Person 节点输出关系
+            if crf_type == "PER":
+                for pred, targets in all_rels.items():
+                    for target_uri, target_label in targets:
+                        lines.append(f'        <turing:{pred} rdf:resource="#{target_uri}"/>')
+
+            lines.append(f'    </turing:{exact_type}>')
+            lines.append('')
+
+    lines.append('    <!-- 实体统计 -->')
+    for etype, cnt in sorted(type_counter.items()):
+        lines.append(f'    <!-- {etype}: {cnt} 个 -->')
+    lines.append('')
     lines.append('</rdf:RDF>')
     return "\n".join(lines)
 
 
 def main():
+    print("=" * 60)
     print("CRF 标注语料 → RDF XML（与 turing-full-data.xml 格式一致）")
+    print("=" * 60)
 
-    entities, all_sents, file_sents = {}, [], {}
-    for fname in ["bio_turing_zh.txt", "bio_turing_en.txt"]:
-        fp = os.path.join(BASE, "corpus", fname)
-        if not os.path.exists(fp): continue
-        sents = parse_bio(fp)
-        file_sents[fname] = len(sents)
+    BIO_ZH = os.path.join(BASE, "corpus", "bio_turing_zh.txt")
+    BIO_EN = os.path.join(BASE, "corpus", "bio_turing_en.txt")
+
+    raw_entities = {}
+    all_sents = []
+
+    if os.path.exists(BIO_ZH):
+        sents = parse_bio(BIO_ZH)
         for st, ents in sents:
             all_sents.append((st, ents))
             for t, ct in ents.items():
-                if t not in entities:
-                    entities[t] = {"type": ct, "sentence": ""}
-                if not entities[t]["sentence"]:
-                    entities[t]["sentence"] = st
+                if t not in raw_entities:
+                    raw_entities[t] = {"type": ct, "sentence": ""}
+                if not raw_entities[t]["sentence"]:
+                    raw_entities[t]["sentence"] = st
+        print(f"\n[bio_turing_zh.txt] 解析完成，句子数: {len(sents)}")
 
-    for fname, n in file_sents.items():
-        print(f"[{fname}] {n} 句子")
+    if os.path.exists(BIO_EN):
+        sents = parse_bio(BIO_EN)
+        for st, ents in sents:
+            all_sents.append((st, ents))
+            for t, ct in ents.items():
+                if t not in raw_entities:
+                    raw_entities[t] = {"type": ct, "sentence": ""}
+                if not raw_entities[t]["sentence"]:
+                    raw_entities[t]["sentence"] = st
+        print(f"[bio_turing_en.txt] 解析完成，句子数: {len(sents)}")
 
+    # 中英文实体合并
+    entities_merged = merge_entities(raw_entities)
+    print(f"\n合并后实体数: {len(entities_merged)}")
+
+    # 统计
     counts = {}
-    for info in entities.values():
+    for info in entities_merged.values():
         t = info["type"]
-        if t == "PER" and info.get("sentence", ""):
-            if not any(k in entities for k in ("艾伦·图灵", "AlanTuring")): continue
-        counts[t] = counts.get(t, 0) + 1
-    print(f"共 {len(entities)} 个实体: {dict(sorted(counts.items()))}")
+        label = info.get("label", "")
+        if t == "PER" and label != "艾伦·图灵": continue
+        exact = subclass(label, CRF_TYPE_MAP.get(t, t))
+        if exact == "HistoricalEvent" and t == "EVT":
+            exact = event_subclass(label)
+        counts[exact] = counts.get(exact, 0) + 1
+    print(f"各类型: {dict(sorted(counts.items()))}")
 
-    out = os.path.join(OUTPUT_DIR, "crf_extracted_entities.xml")
-    with open(out, "w", encoding="utf-8") as f:
-        f.write(build_xml(entities, all_sents))
-    print(f"已生成: {out}")
+    # 打印实体列表
+    print("\n实体列表：")
+    for key, info in sorted(entities_merged.items(), key=lambda x: x[0]):
+        label = info.get("label", "")
+        t = info["type"]
+        if t == "PER" and label != "艾伦·图灵": continue
+        print(f"  [{t:>4}] {label}")
+
+    # 生成 XML
+    out_xml = os.path.join(OUTPUT_DIR, "crf_extracted_entities.xml")
+    xml_content = build_xml(entities_merged, all_sents)
+    with open(out_xml, "w", encoding="utf-8") as f:
+        f.write(xml_content)
+    print(f"\n已生成: {out_xml}")
+    print(f"输出格式与 turing-full-data.xml 一致")
+    print("  - 人物关联事件（participatedIn）、著作（wrote）、奖项（received）")
+    print("  - 中英文重复实体已合并")
 
 
 if __name__ == "__main__":
