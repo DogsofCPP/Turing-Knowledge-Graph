@@ -12,7 +12,7 @@ ontology/
 
 turing-full-data.xml        ③ 实例数据层：owl:imports turing-owl.xml
                               └── 手工结构化实例
-                              └── NER 抽取实例（由 05_integrate_ner.py 生成）
+                              └── NER 抽取实例（由 04_extract_and_convert.py 生成）
 
 index.html                  可视化界面：加载 turing-full-data.xml
 ```
@@ -23,7 +23,7 @@ index.html                  可视化界面：加载 turing-full-data.xml
 turing-rdfs.xml  ── owl:imports ──▶  turing-owl.xml  ── owl:imports ──▶  turing-full-data.xml
 (类层次+属性)                        (OWL 约束)                            (实例数据)
                                                                                  │
-                                                                         ── owl:imports ──▶  ner/output/ner_integrated_instances.xml
+                                                                         ── owl:imports ──▶  ner/output/crf_extracted_entities.xml
                                                                                             (CRF 抽取实体，类型映射后纳入)
 ```
 
@@ -98,8 +98,7 @@ pip install -r requirements.txt
 python 01_fetch_corpus.py    # 爬取 Wikipedia 语料
 python 02_prepare_bio.py     # 生成 BIO 标注
 python 03_train_crf.py       # 训练 CRF 模型
-python 04_extract_and_convert.py  # 实体抽取
-python 05_integrate_ner.py   # 类型映射整合
+python 04_extract_and_convert.py  # 实体抽取 → RDF XML + Turtle
 ```
 
 ### 2. 查看知识图谱
@@ -111,8 +110,8 @@ python 05_integrate_ner.py   # 类型映射整合
 ### 3. 扩展数据
 
 - 添加手工实例：编辑 `turing-full-data.xml`
-- 调整 NER 类型映射规则：修改 `ner/05_integrate_ner.py` 中的 `CRF_TYPE_MAP`
-- 调整噪音过滤规则：修改 `is_noise_entity()` 函数
+- 调整 NER 类型映射规则：修改 `ner/04_extract_and_convert.py` 中的 `CRF_TYPE_MAP`
+- 调整中英文实体合并：修改 `ner/04_extract_and_convert.py` 中的 `MERGE_MAP`
 
 ## 知识范围
 

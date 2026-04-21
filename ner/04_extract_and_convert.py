@@ -226,6 +226,7 @@ def build_xml(entities_merged, all_sents):
     lines.append('    图灵知识图谱 · CRF 实体抽取实例（第 3 层）')
     lines.append('    由 04_extract_and_convert.py 自动生成')
     lines.append('    来源：bio_turing_zh.txt + bio_turing_en.txt 标注语料')
+    lines.append('    被 turing-full-data.xml 通过 owl:imports 引入')
     lines.append('-->')
     lines.append('<rdf:RDF')
     lines.append('    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"')
@@ -240,13 +241,16 @@ def build_xml(entities_merged, all_sents):
     lines.append('        <rdfs:comment>CRF 实体抽取实例层 - bio_turing 标注语料</rdfs:comment>')
     lines.append('    </owl:Ontology>')
     lines.append('')
-    lines.append('    <!-- ==================== CRF 抽取实体实例 ==================== -->')
+    lines.append('    <!-- ==================== CRF 抽取实体实例（去重后）==================== -->')
     lines.append('')
 
     all_rels = build_person_rels_merged(all_sents)
 
     type_counter = {}
     type_order = ["PER", "EVT", "LOC", "PUB", "AWD"]
+
+    # 已输出的 canonical_id（防止重复）
+    seen_ids = set()
 
     for crf_type in type_order:
         for key, info in sorted(entities_merged.items(), key=lambda x: x[0]):
@@ -273,7 +277,9 @@ def build_xml(entities_merged, all_sents):
                 u = key
                 out_label = label
 
-            if not u: continue
+            if not u or u in seen_ids: continue
+            seen_ids.add(u)
+
             type_counter[exact_type] = type_counter.get(exact_type, 0) + 1
             attrs = infer(label, exact_type, sent)
 
@@ -303,6 +309,91 @@ def build_xml(entities_merged, all_sents):
         lines.append(f'    <!-- {etype}: {cnt} 个 -->')
     lines.append('')
     lines.append('</rdf:RDF>')
+    return "\n".join(lines)
+
+
+def build_ttl(entities_merged, all_sents):
+    """生成 Turtle 格式（与 XML 输出相同的去重实体）"""
+    lines = [
+        '@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .',
+        '@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .',
+        '@prefix owl: <http://www.w3.org/2002/07/owl#> .',
+        '@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .',
+        '@prefix turing: <http://www.example.org/turing#> .',
+        '',
+        '# 图灵知识图谱 · CRF 实体抽取实例（第 3 层）',
+        '# 被 turing-full-data.xml 通过 owl:imports 引入',
+        '',
+        'turing: crf_extracted_entities a owl:Ontology ;',
+        '    rdfs:comment "CRF 实体抽取实例层 - bio_turing 标注语料" .',
+        '',
+    ]
+
+    all_rels = build_person_rels_merged(all_sents)
+    seen_ids = set()
+    type_counter = {}
+
+    type_order = ["PER", "EVT", "LOC", "PUB", "AWD"]
+
+    for crf_type in type_order:
+        for key, info in sorted(entities_merged.items(), key=lambda x: x[0]):
+            if info["type"] != crf_type: continue
+            label = info.get("label", key)
+            label = label.strip()
+            if not label or len(label) <= 1: continue
+
+            if crf_type == "PER" and label != "艾伦·图灵": continue
+
+            base = CRF_TYPE_MAP[crf_type]
+            exact_type = subclass(label, base)
+            if exact_type == "HistoricalEvent":
+                exact_type = event_subclass(label)
+
+            sent = info.get("sentence", "")
+
+            if crf_type == "PER":
+                u = "AlanTuring"
+                out_label = "艾伦·图灵"
+            else:
+                u = key
+                out_label = label
+
+            if not u or u in seen_ids: continue
+            seen_ids.add(u)
+            type_counter[exact_type] = type_counter.get(exact_type, 0) + 1
+            attrs = infer(label, exact_type, sent)
+
+            # 构建三元组
+            lines.append(f'turing:{u} a turing:{exact_type} ;')
+            lines.append(f'    rdfs:label "{out_label}"^^rdf:XMLLiteral ;')
+
+            if "eventDate" in attrs:
+                lines.append(f'    turing:eventDate "{attrs["eventDate"]}"^^xsd:date ;')
+            if "publicationYear" in attrs:
+                lines.append(f'    turing:publicationYear "{attrs["publicationYear"]}"^^xsd:gYear ;')
+            if "awardYear" in attrs:
+                lines.append(f'    turing:awardYear "{attrs["awardYear"]}"^^xsd:gYear ;')
+            if "country" in attrs:
+                lines.append(f'    turing:country "{attrs["country"]}" ;')
+
+            # Person 关系
+            if crf_type == "PER":
+                for pred, targets in all_rels.items():
+                    for target_uri, target_label in targets:
+                        lines.append(f'    turing:{pred} turing:{target_uri} ;')
+                # 去掉末尾分号，改为句号
+                if all_rels:
+                    lines[-1] = lines[-1].rstrip(' ;') + ' .'
+            else:
+                lines.append('    .')
+
+            lines.append('')
+
+    # 统计注释
+    lines.append('# 实体统计')
+    for etype, cnt in sorted(type_counter.items()):
+        lines.append(f'# {etype}: {cnt} 个')
+    lines.append('')
     return "\n".join(lines)
 
 
@@ -369,7 +460,15 @@ def main():
     with open(out_xml, "w", encoding="utf-8") as f:
         f.write(xml_content)
     print(f"\n已生成: {out_xml}")
-    print(f"输出格式与 turing-full-data.xml 一致")
+
+    # 生成 Turtle 格式
+    out_ttl = os.path.join(OUTPUT_DIR, "crf_extracted_entities.ttl")
+    ttl_content = build_ttl(entities_merged, all_sents)
+    with open(out_ttl, "w", encoding="utf-8") as f:
+        f.write(ttl_content)
+    print(f"已生成: {out_ttl}")
+
+    print(f"\n输出格式与 turing-full-data.xml 一致")
     print("  - 人物关联事件（participatedIn）、著作（wrote）、奖项（received）")
     print("  - 中英文重复实体已合并")
 

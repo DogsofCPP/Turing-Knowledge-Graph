@@ -3,6 +3,7 @@
     图灵知识图谱 · CRF 实体抽取实例（第 3 层）
     由 04_extract_and_convert.py 自动生成
     来源：bio_turing_zh.txt + bio_turing_en.txt 标注语料
+    被 turing-full-data.xml 通过 owl:imports 引入
 -->
 <rdf:RDF
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -17,7 +18,7 @@
         <rdfs:comment>CRF 实体抽取实例层 - bio_turing 标注语料</rdfs:comment>
     </owl:Ontology>
 
-    <!-- ==================== CRF 抽取实体实例 ==================== -->
+    <!-- ==================== CRF 抽取实体实例（去重后）==================== -->
 
     <turing:Person rdf:ID="AlanTuring">
         <rdfs:label>艾伦·图灵</rdfs:label>

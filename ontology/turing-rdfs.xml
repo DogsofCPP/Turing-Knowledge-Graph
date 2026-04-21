@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    图灵知识图谱 · RDFS 本体层（第 1 层）
+    定义核心类（Class）及属性（Property）的语义层次结构
+    被 turing-owl.xml 通过 owl:imports 引用
+-->
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:turing="http://www.example.org/turing#"
+    xml:base="http://www.example.org/turing">
+
+    <!-- ==================== 本体声明 ==================== -->
+    <owl:Ontology rdf:about="http://www.example.org/turing">
+        <rdfs:comment xml:lang="zh">图灵知识图谱 · RDFS 本体层 - 核心类与属性定义</rdfs:comment>
+    </owl:Ontology>
+
+    <!-- ==================== 核心类（Classes） ==================== -->
+
+    <!-- 顶层抽象类 -->
+    <rdfs:Class rdf:ID="Entity">
+        <rdfs:comment xml:lang="zh">所有实体的基类</rdfs:comment>
+    </rdfs:Class>
+
+    <!-- 人物类 -->
+    <rdfs:Class rdf:ID="Person">
+        <rdfs:subClassOf rdf:resource="#Entity"/>
+        <rdfs:comment xml:lang="zh">人物：图灵本人及与他相关的人</rdfs:comment>
+        <rdfs:label xml:lang="zh">人物</rdfs:label>
+    </rdfs:Class>
+
+    <!-- 事件类（细分三类） -->
+    <rdfs:Class rdf:ID="Event">
+        <rdfs:subClassOf rdf:resource="#Entity"/>
+        <rdfs:comment xml:lang="zh">事件基类</rdfs:comment>
+        <rdfs:label xml:lang="zh">事件</rdfs:label>
+    </rdfs:Class>
+
+    <rdfs:Class rdf:ID="PersonalEvent">
+        <rdfs:subClassOf rdf:resource="#Event"/>
+        <rdfs:comment xml:lang="zh">个人生活事件：出生、逝世、审判等</rdfs:comment>
+        <rdfs:label xml:lang="zh">个人事件</rdfs:label>
+    </rdfs:Class>
+
+    <rdfs:Class rdf:ID="AcademicEvent">
+        <rdfs:subClassOf rdf:resource="#Event"/>
+        <rdfs:comment xml:lang="zh">学术事件：入学、论文发表、获奖、博士等</rdfs:comment>
+        <rdfs:label xml:lang="zh">学术事件</rdfs:label>
+    </rdfs:Class>
+
+    <rdfs:Class rdf:ID="HistoricalEvent">
+        <rdfs:subClassOf rdf:resource="#Event"/>
+        <rdfs:comment xml:lang="zh">历史性事件：二战、政府道歉等</rdfs:comment>
+        <rdfs:label xml:lang="zh">历史事件</rdfs:label>
+    </rdfs:Class>
+
+    <!-- 地点类（细分三类） -->
+    <rdfs:Class rdf:ID="Location">
+        <rdfs:subClassOf rdf:resource="#Entity"/>
+        <rdfs:comment xml:lang="zh">地点基类</rdfs:comment>
+        <rdfs:label xml:lang="zh">地点</rdfs:label>
+    </rdfs:Class>
+
+    <rdfs:Class rdf:ID="City">
+        <rdfs:subClassOf rdf:resource="#Location"/>
+        <rdfs:comment xml:lang="zh">城市</rdfs:comment>
+        <rdfs:label xml:lang="zh">城市</rdfs:label>
+    </rdfs:Class>
+
+    <rdfs:Class rdf:ID="Country">
+        <rdfs:subClassOf rdf:resource="#Location"/>
+        <rdfs:comment xml:lang="zh">国家</rdfs:comment>
+        <rdfs:label xml:lang="zh">国家</rdfs:label>
+    </rdfs:Class>
+
+    <rdfs:Class rdf:ID="InstitutionLocation">
+        <rdfs:subClassOf rdf:resource="#Location"/>
+        <rdfs:comment xml:lang="zh">机构所在地：大学、研究所等</rdfs:comment>
+        <rdfs:label xml:lang="zh">机构地点</rdfs:label>
+    </rdfs:Class>
+
+    <!-- 学术著作类 -->
+    <rdfs:Class rdf:ID="Publication">
+        <rdfs:subClassOf rdf:resource="#Entity"/>
+        <rdfs:comment xml:lang="zh">出版物基类</rdfs:comment>
+        <rdfs:label xml:lang="zh">出版物</rdfs:label>
+    </rdfs:Class>
+
+    <rdfs:Class rdf:ID="Paper">
+        <rdfs:subClassOf rdf:resource="#Publication"/>
+        <rdfs:comment xml:lang="zh">学术论文</rdfs:comment>
+        <rdfs:label xml:lang="zh">论文</rdfs:label>
+    </rdfs:Class>
+
+    <rdfs:Class rdf:ID="TechnicalReport">
+        <rdfs:subClassOf rdf:resource="#Publication"/>
+        <rdfs:comment xml:lang="zh">技术报告</rdfs:comment>
+        <rdfs:label xml:lang="zh">技术报告</rdfs:label>
+    </rdfs:Class>
+
+    <rdfs:Class rdf:ID="Book">
+        <rdfs:subClassOf rdf:resource="#Publication"/>
+        <rdfs:comment xml:lang="zh">书籍</rdfs:comment>
+        <rdfs:label xml:lang="zh">书籍</rdfs:label>
+    </rdfs:Class>
+
+    <!-- 奖项/荣誉类 -->
+    <rdfs:Class rdf:ID="Award">
+        <rdfs:subClassOf rdf:resource="#Entity"/>
+        <rdfs:comment xml:lang="zh">奖项/荣誉基类</rdfs:comment>
+        <rdfs:label xml:lang="zh">奖项</rdfs:label>
+    </rdfs:Class>
+
+    <rdfs:Class rdf:ID="AcademicAward">
+        <rdfs:subClassOf rdf:resource="#Award"/>
+        <rdfs:comment xml:lang="zh">学术奖项</rdfs:comment>
+        <rdfs:label xml:lang="zh">学术奖</rdfs:label>
+    </rdfs:Class>
+
+    <rdfs:Class rdf:ID="HonoraryTitle">
+        <rdfs:subClassOf rdf:resource="#Award"/>
+        <rdfs:comment xml:lang="zh">荣誉称号/赦免/纪念</rdfs:comment>
+        <rdfs:label xml:lang="zh">荣誉称号</rdfs:label>
+    </rdfs:Class>
+
+    <!-- ==================== 对象属性（Object Properties） ==================== -->
+    <!-- 对象属性连接两个实体 -->
+
+    <!-- 人物参与事件 -->
+    <rdf:Property rdf:ID="participatedIn">
+        <rdfs:domain rdf:resource="#Person"/>
+        <rdfs:range rdf:resource="#Event"/>
+        <rdfs:comment xml:lang="zh">人物参与的事件</rdfs:comment>
+        <rdfs:label xml:lang="zh">参与</rdfs:label>
+    </rdf:Property>
+
+    <!-- 人物撰写著作 -->
+    <rdf:Property rdf:ID="wrote">
+        <rdfs:domain rdf:resource="#Person"/>
+        <rdfs:range rdf:resource="#Publication"/>
+        <rdfs:comment xml:lang="zh">人物撰写的著作</rdfs:comment>
+        <rdfs:label xml:lang="zh">撰写</rdfs:label>
+    </rdf:Property>
+
+    <!-- 人物获得奖项 -->
+    <rdf:Property rdf:ID="received">
+        <rdfs:domain rdf:resource="#Person"/>
+        <rdfs:range rdf:resource="#Award"/>
+        <rdfs:comment xml:lang="zh">人物获得的奖项/荣誉</rdfs:comment>
+        <rdfs:label xml:lang="zh">获得</rdfs:label>
+    </rdf:Property>
+
+    <!-- 事件发生地点 -->
+    <rdf:Property rdf:ID="happenedAt">
+        <rdfs:domain rdf:resource="#Event"/>
+        <rdfs:range rdf:resource="#Location"/>
+        <rdfs:comment xml:lang="zh">事件发生的地点</rdfs:comment>
+        <rdfs:label xml:lang="zh">发生于</rdfs:label>
+    </rdf:Property>
+
+    <!-- 地点所属国家 -->
+    <rdf:Property rdf:ID="locatedIn">
+        <rdfs:domain rdf:resource="#Location"/>
+        <rdfs:range rdf:resource="#Country"/>
+        <rdfs:comment xml:lang="zh">地点所属国家</rdfs:comment>
+        <rdfs:label xml:lang="zh">位于</rdfs:label>
+    </rdf:Property>
+
+    <!-- 著作作者（反向） -->
+    <rdf:Property rdf:ID="author">
+        <rdfs:domain rdf:resource="#Publication"/>
+        <rdfs:range rdf:resource="#Person"/>
+        <rdfs:subPropertyOf rdf:resource="#wrote"/>
+        <rdfs:comment xml:lang="zh">著作的作者（wrote 的逆属性）</rdfs:comment>
+        <rdfs:label xml:lang="zh">作者</rdfs:label>
+    </rdf:Property>
+
+    <!-- 奖项获得者（反向） -->
+    <rdf:Property rdf:ID="awardedTo">
+        <rdfs:domain rdf:resource="#Award"/>
+        <rdfs:range rdf:resource="#Person"/>
+        <rdfs:subPropertyOf rdf:resource="#received"/>
+        <rdfs:comment xml:lang="zh">奖项的获得者（received 的逆属性）</rdfs:comment>
+        <rdfs:label xml:lang="zh">获得者</rdfs:label>
+    </rdf:Property>
+
+    <!-- 人物导师关系 -->
+    <rdf:Property rdf:ID="supervisedBy">
+        <rdfs:domain rdf:resource="#Person"/>
+        <rdfs:range rdf:resource="#Person"/>
+        <rdfs:comment xml:lang="zh">人物的导师</rdfs:comment>
+        <rdfs:label xml:lang="zh">导师</rdfs:label>
+    </rdf:Property>
+
+    <!-- 人物同事关系 -->
+    <rdf:Property rdf:ID="colleagueOf">
+        <rdfs:domain rdf:resource="#Person"/>
+        <rdfs:range rdf:resource="#Person"/>
+        <rdfs:comment xml:lang="zh">人物的同事</rdfs:comment>
+        <rdfs:label xml:lang="zh">同事</rdfs:label>
+    </rdf:Property>
+
+    <!-- 人物工作地点 -->
+    <rdf:Property rdf:ID="workedAt">
+        <rdfs:domain rdf:resource="#Person"/>
+        <rdfs:range rdf:resource="#Location"/>
+        <rdfs:comment xml:lang="zh">人物的工作地点</rdfs:comment>
+        <rdfs:label xml:lang="zh">工作于</rdfs:label>
+    </rdf:Property>
+
+    <!-- 人物就读学校 -->
+    <rdf:Property rdf:ID="graduatedFrom">
+        <rdfs:domain rdf:resource="#Person"/>
+        <rdfs:range rdf:resource="#Location"/>
+        <rdfs:comment xml:lang="zh">人物的毕业院校</rdfs:comment>
+        <rdfs:label xml:lang="zh">毕业于</rdfs:label>
+    </rdf:Property>
+
+    <!-- 人物出生地 -->
+    <rdf:Property rdf:ID="bornIn">
+        <rdfs:domain rdf:resource="#Person"/>
+        <rdfs:range rdf:resource="#Location"/>
+        <rdfs:subPropertyOf rdf:resource="#participatedIn"/>
+        <rdfs:comment xml:lang="zh">人物的出生地（特殊的事件/地点）</rdfs:comment>
+        <rdfs:label xml:lang="zh">出生于</rdfs:label>
+    </rdf:Property>
+
+    <!-- ==================== 数据属性（Datatype Properties） ==================== -->
+    <!-- 数据属性连接实体与字面值 -->
+
+    <!-- 实体标签（所有实体都有） -->
+    <rdf:Property rdf:ID="label">
+        <rdfs:domain rdf:resource="#Entity"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <rdfs:comment xml:lang="zh">实体的显示名称</rdfs:comment>
+        <rdfs:label xml:lang="zh">标签</rdfs:label>
+    </rdf:Property>
+
+    <!-- 实体描述 -->
+    <rdf:Property rdf:ID="description">
+        <rdfs:domain rdf:resource="#Entity"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <rdfs:comment xml:lang="zh">实体的详细描述</rdfs:comment>
+        <rdfs:label xml:lang="zh">描述</rdfs:label>
+    </rdf:Property>
+
+    <!-- 事件日期 -->
+    <rdf:Property rdf:ID="eventDate">
+        <rdfs:domain rdf:resource="#Event"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#date"/>
+        <rdfs:comment xml:lang="zh">事件发生的日期</rdfs:comment>
+        <rdfs:label xml:lang="zh">事件日期</rdfs:label>
+    </rdf:Property>
+
+    <!-- 论文发表年份 -->
+    <rdf:Property rdf:ID="publicationYear">
+        <rdfs:domain rdf:resource="#Publication"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#gYear"/>
+        <rdfs:comment xml:lang="zh">论文/著作发表年份</rdfs:comment>
+        <rdfs:label xml:lang="zh">发表年份</rdfs:label>
+    </rdf:Property>
+
+    <!-- 奖项获得年份 -->
+    <rdf:Property rdf:ID="awardYear">
+        <rdfs:domain rdf:resource="#Award"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#gYear"/>
+        <rdfs:comment xml:lang="zh">奖项获得年份</rdfs:comment>
+        <rdfs:label xml:lang="zh">获奖年份</rdfs:label>
+    </rdf:Property>
+
+    <!-- 地点国家 -->
+    <rdf:Property rdf:ID="country">
+        <rdfs:domain rdf:resource="#City"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <rdfs:comment xml:lang="zh">城市所属国家</rdfs:comment>
+        <rdfs:label xml:lang="zh">国家</rdfs:label>
+    </rdf:Property>
+
+    <!-- 人物生卒年 -->
+    <rdf:Property rdf:ID="birthYear">
+        <rdfs:domain rdf:resource="#Person"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#gYear"/>
+        <rdfs:comment xml:lang="zh">人物出生年份</rdfs:comment>
+        <rdfs:label xml:lang="zh">出生年</rdfs:label>
+    </rdf:Property>
+
+    <rdf:Property rdf:ID="deathYear">
+        <rdfs:domain rdf:resource="#Person"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#gYear"/>
+        <rdfs:comment xml:lang="zh">人物逝世年份</rdfs:comment>
+        <rdfs:label xml:lang="zh">逝世年</rdfs:label>
+    </rdf:Property>
+
+    <!-- ==================== RDF Reification（rdf:Statement） ==================== -->
+    <!-- 用于描述元组（主谓宾三元组）本身的属性 -->
+
+    <rdfs:Class rdf:ID="Statement">
+        <rdfs:comment xml:lang="zh">用于 RDF Reification 的语句类，描述三元组本身的元信息</rdfs:comment>
+        <rdfs:label xml:lang="zh">语句</rdfs:label>
+    </rdfs:Class>
+
+    <rdf:Property rdf:ID="period">
+        <rdfs:domain rdf:resource="#Statement"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <rdfs:comment xml:lang="zh">参与/任职时间范围</rdfs:comment>
+        <rdfs:label xml:lang="zh">时间段</rdfs:label>
+    </rdf:Property>
+
+    <rdf:Property rdf:ID="role">
+        <rdfs:domain rdf:resource="#Statement"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <rdfs:comment xml:lang="zh">在事件/机构中扮演的角色</rdfs:comment>
+        <rdfs:label xml:lang="zh">角色</rdfs:label>
+    </rdf:Property>
+
+    <rdf:Property rdf:ID="confidence">
+        <rdfs:domain rdf:resource="#Statement"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+        <rdfs:comment xml:lang="zh">关系/属性的置信度（NER 抽取结果可用）</rdfs:comment>
+        <rdfs:label xml:lang="zh">置信度</rdfs:label>
+    </rdf:Property>
+
+    <rdf:Property rdf:ID="source">
+        <rdfs:domain rdf:resource="#Statement"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <rdfs:comment xml:lang="zh">数据来源（manual / NER / relation-extraction）</rdfs:comment>
+        <rdfs:label xml:lang="zh">来源</rdfs:label>
+    </rdf:Property>
+
+</rdf:RDF>

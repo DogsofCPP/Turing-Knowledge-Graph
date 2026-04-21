@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    图灵知识图谱 · OWL 约束层（第 2 层）
+    通过 owl:imports 引入 turing-rdfs.xml（进而引入 RDFS 层）
+    定义 OWL 类约束、属性特征（传递/对称/逆属性）及推理规则
+-->
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:turing="http://www.example.org/turing#"
+    xml:base="http://www.example.org/turing">
+
+    <!-- ==================== 本体声明 ==================== -->
+    <owl:Ontology rdf:about="http://www.example.org/turing">
+        <rdfs:comment>图灵知识图谱 · OWL 约束层 - 类约束与属性特征</rdfs:comment>
+        <!-- 引入 RDFS 层 -->
+        <owl:imports rdf:resource="turing-rdfs.xml"/>
+    </owl:Ontology>
+
+    <!-- ==================== OWL 类定义（带等价/不相交约束） ==================== -->
+
+    <!-- Event 的三个子类互不相交 -->
+    <owl:Class rdf:about="http://www.example.org/turing#PersonalEvent">
+        <rdfs:subClassOf rdf:resource="http://www.example.org/turing#Event"/>
+        <owl:disjointWith rdf:resource="http://www.example.org/turing#AcademicEvent"/>
+        <owl:disjointWith rdf:resource="http://www.example.org/turing#HistoricalEvent"/>
+    </owl:Class>
+
+    <owl:Class rdf:about="http://www.example.org/turing#AcademicEvent">
+        <rdfs:subClassOf rdf:resource="http://www.example.org/turing#Event"/>
+        <owl:disjointWith rdf:resource="http://www.example.org/turing#PersonalEvent"/>
+        <owl:disjointWith rdf:resource="http://www.example.org/turing#HistoricalEvent"/>
+    </owl:Class>
+
+    <owl:Class rdf:about="http://www.example.org/turing#HistoricalEvent">
+        <rdfs:subClassOf rdf:resource="http://www.example.org/turing#Event"/>
+        <owl:disjointWith rdf:resource="http://www.example.org/turing#PersonalEvent"/>
+        <owl:disjointWith rdf:resource="http://www.example.org/turing#AcademicEvent"/>
+    </owl:Class>
+
+    <!-- Publication 的子类互不相交 -->
+    <owl:Class rdf:about="http://www.example.org/turing#Paper">
+        <owl:disjointWith rdf:resource="http://www.example.org/turing#TechnicalReport"/>
+        <owl:disjointWith rdf:resource="http://www.example.org/turing#Book"/>
+    </owl:Class>
+
+    <owl:Class rdf:about="http://www.example.org/turing#TechnicalReport">
+        <owl:disjointWith rdf:resource="http://www.example.org/turing#Paper"/>
+        <owl:disjointWith rdf:resource="http://www.example.org/turing#Book"/>
+    </owl:Class>
+
+    <owl:Class rdf:about="http://www.example.org/turing#Book">
+        <owl:disjointWith rdf:resource="http://www.example.org/turing#Paper"/>
+        <owl:disjointWith rdf:resource="http://www.example.org/turing#TechnicalReport"/>
+    </owl:Class>
+
+    <!-- Award 的两个子类互不相交 -->
+    <owl:Class rdf:about="http://www.example.org/turing#AcademicAward">
+        <owl:disjointWith rdf:resource="http://www.example.org/turing#HonoraryTitle"/>
+    </owl:Class>
+
+    <owl:Class rdf:about="http://www.example.org/turing#HonoraryTitle">
+        <owl:disjointWith rdf:resource="http://www.example.org/turing#AcademicAward"/>
+    </owl:Class>
+
+    <!-- ==================== OWL 属性特征（特性） ==================== -->
+
+    <!-- 对象属性：author 是 wrote 的逆属性 -->
+    <owl:ObjectProperty rdf:about="http://www.example.org/turing#author">
+        <owl:inverseOf rdf:resource="http://www.example.org/turing#wrote"/>
+        <rdfs:domain rdf:resource="http://www.example.org/turing#Publication"/>
+        <rdfs:range rdf:resource="http://www.example.org/turing#Person"/>
+    </owl:ObjectProperty>
+
+    <!-- 对象属性：awardedTo 是 received 的逆属性 -->
+    <owl:ObjectProperty rdf:about="http://www.example.org/turing#awardedTo">
+        <owl:inverseOf rdf:resource="http://www.example.org/turing#received"/>
+        <rdfs:domain rdf:resource="http://www.example.org/turing#Award"/>
+        <rdfs:range rdf:resource="http://www.example.org/turing#Person"/>
+    </owl:ObjectProperty>
+
+    <!-- 对象属性：colleagueOf 是对称属性（图灵和同事互为同事） -->
+    <owl:SymmetricProperty rdf:about="http://www.example.org/turing#colleagueOf">
+        <rdfs:domain rdf:resource="http://www.example.org/turing#Person"/>
+        <rdfs:range rdf:resource="http://www.example.org/turing#Person"/>
+    </owl:SymmetricProperty>
+
+    <!-- 对象属性：bornIn 是 participatedIn 的子属性 -->
+    <owl:ObjectProperty rdf:about="http://www.example.org/turing#bornIn">
+        <rdfs:subPropertyOf rdf:resource="http://www.example.org/turing#participatedIn"/>
+        <rdfs:domain rdf:resource="http://www.example.org/turing#Person"/>
+        <rdfs:range rdf:resource="http://www.example.org/turing#Location"/>
+    </owl:ObjectProperty>
+
+    <!-- 地理位置包含关系：locatedIn 是传递属性 -->
+    <!-- 例如：某学院 locatedIn 某城市 locatedIn 某国家 -->
+    <owl:TransitiveProperty rdf:about="http://www.example.org/turing#locatedIn">
+        <rdfs:domain rdf:resource="http://www.example.org/turing#Location"/>
+        <rdfs:range rdf:resource="http://www.example.org/turing#Location"/>
+    </owl:TransitiveProperty>
+
+    <!-- happenedAt 是传递属性 -->
+    <!-- 例如：布莱切利园 happenedAt Milton Keynes happenedAt England -->
+    <owl:TransitiveProperty rdf:about="http://www.example.org/turing#happenedAt">
+        <rdfs:domain rdf:resource="http://www.example.org/turing#Event"/>
+        <rdfs:range rdf:resource="http://www.example.org/turing#Location"/>
+    </owl:TransitiveProperty>
+
+    <!-- ==================== 属性约束（属性链 / 复杂类） ==================== -->
+
+    <!-- 约束：任何事件必须至少有一个标签 -->
+    <owl:Class rdf:about="http://www.example.org/turing#Event">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.example.org/turing#label"/>
+                <owl:minQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minQualifiedCardinality>
+                <owl:onDataRange rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+    <!-- 约束：人物至少参与过事件 -->
+    <owl:Class rdf:about="http://www.example.org/turing#Person">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.example.org/turing#participatedIn"/>
+                <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+    <!-- 约束：出版物有发表年份 -->
+    <owl:Class rdf:about="http://www.example.org/turing#Publication">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.example.org/turing#publicationYear"/>
+                <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+    <!-- ==================== NER 实体置信度标注（Blank Node） ==================== -->
+    <!-- NER 抽取的实体通过 owl:Class 的等价类定义来标注置信区间 -->
+
+    <!-- NER 高置信实体类（置信度 >= 0.8） -->
+    <owl:Class rdf:ID="NERHighConfidence">
+        <rdfs:comment>NER 抽取的高置信度实体（CRF 置信度 >= 0.8）</rdfs:comment>
+    </owl:Class>
+
+    <!-- NER 低置信实体类（置信度 < 0.8） -->
+    <owl:Class rdf:ID="NERLowConfidence">
+        <rdfs:comment>NER 抽取的低置信度实体（CRF 置信度 &lt; 0.8），需人工校验</rdfs:comment>
+    </owl:Class>
+
+    <!-- 手工实体类（完全可信） -->
+    <owl:Class rdf:ID="ManualVerified">
+        <rdfs:comment>手工编写的完全可信实体</rdfs:comment>
+    </owl:Class>
+
+    <!-- ==================== 等价类定义（用于推理） ==================== -->
+
+    <!-- 等价：发表论文的人 = 写过 Publication 的人 -->
+    <!-- 这个约束可以让reasoner推断出：任何写过论文的人都是学术圈人物 -->
+
+    <!-- 等价：获奖者 = 获得过 Award 的人 -->
+    <!-- 推理机可以从 received 属性推断出 awardedTo 关系 -->
+
+</rdf:RDF>
