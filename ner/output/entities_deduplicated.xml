@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    图灵知识图谱 · 实体消歧结果
+    由 05_entity_disambiguation.py 自动生成
+    逻辑：手工数据优先，NER 数据中去重冲突后保留
+    被 turing-full-data.xml 通过 owl:imports 引入
+-->
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:turing="http://www.example.org/turing#"
+    xml:base="http://www.example.org/turing">
+
+    <!-- ==================== 本体声明 ==================== -->
+    <owl:Ontology rdf:about="http://www.example.org/turing">
+        <rdfs:comment>实体消歧层 - 手工数据优先，NER 去重</rdfs:comment>
+    </owl:Ontology>
+
+    <!-- ==================== 消歧后保留的 NER 实体（不在手工数据中） ==================== -->
+
+    <turing:Person rdf:ID="AlanTuring">
+        <rdfs:label>艾伦·图灵</rdfs:label>
+        <turing:source>NER</turing:source>
+        <turing:participatedIn rdf:resource="#Event_WorldWarII"/>
+        <turing:participatedIn rdf:resource="#Event_WorldWarI"/>
+        <turing:wrote rdf:resource="#Publication_ACE"/>
+        <turing:wrote rdf:resource="#Publication_ComputingMachineryandIntelligence"/>
+        <turing:wrote rdf:resource="#Publication_ChemicalBasisofMorphogenesis"/>
+        <turing:wrote rdf:resource="#Publication_TuringAward"/>
+        <turing:received rdf:resource="#Award_OBE"/>
+        <turing:received rdf:resource="#Award_RoyalSociety"/>
+        <turing:received rdf:resource="#Award_RoyalPardon"/>
+        <turing:received rdf:resource="#Award_FiftyPoundBanknote"/>
+    </turing:Person>
+
+    <turing:HistoricalEvent rdf:ID="Event_WorldWarI">
+        <rdfs:label>一战</rdfs:label>
+        <turing:source>NER</turing:source>
+    </turing:HistoricalEvent>
+
+    <turing:HistoricalEvent rdf:ID="Event_WorldWarII">
+        <rdfs:label>二战</rdfs:label>
+        <turing:source>NER</turing:source>
+    </turing:HistoricalEvent>
+
+    <turing:City rdf:ID="Location_Cheshire">
+        <rdfs:label>柴郡</rdfs:label>
+        <turing:source>NER</turing:source>
+        <turing:country>英国</turing:country>
+    </turing:City>
+
+    <turing:City rdf:ID="Location_England">
+        <rdfs:label>英格兰</rdfs:label>
+        <turing:source>NER</turing:source>
+        <turing:country>英国</turing:country>
+    </turing:City>
+
+    <turing:City rdf:ID="Location_India">
+        <rdfs:label>印度</rdfs:label>
+        <turing:source>NER</turing:source>
+        <turing:country>印度</turing:country>
+    </turing:City>
+
+    <turing:City rdf:ID="Location_KingsCollege">
+        <rdfs:label>剑桥大学国王学院</rdfs:label>
+        <turing:source>NER</turing:source>
+        <turing:country>英国</turing:country>
+    </turing:City>
+
+    <turing:City rdf:ID="Location_Kochi">
+        <rdfs:label>科钦</rdfs:label>
+        <turing:source>NER</turing:source>
+    </turing:City>
+
+    <turing:City rdf:ID="Location_MiltonKeynes">
+        <rdfs:label>米尔顿凯恩斯</rdfs:label>
+        <turing:source>NER</turing:source>
+        <turing:country>英国</turing:country>
+    </turing:City>
+
+    <turing:City rdf:ID="Location_NewJersey">
+        <rdfs:label>新泽西</rdfs:label>
+        <turing:source>NER</turing:source>
+    </turing:City>
+
+    <turing:City rdf:ID="Location_TrinityCollege">
+        <rdfs:label>剑桥大学三一学院</rdfs:label>
+        <turing:source>NER</turing:source>
+        <turing:country>英国</turing:country>
+    </turing:City>
+
+    <turing:City rdf:ID="Location_UnitedStates">
+        <rdfs:label>美国</rdfs:label>
+        <turing:source>NER</turing:source>
+    </turing:City>
+
+    <turing:City rdf:ID="印度">
+        <rdfs:label>印度</rdfs:label>
+        <turing:source>NER</turing:source>
+        <turing:country>印度</turing:country>
+    </turing:City>
+
+    <turing:Paper rdf:ID="Publication_ACE">
+        <rdfs:label>自动计算引擎</rdfs:label>
+        <turing:source>NER</turing:source>
+        <turing:publicationYear rdf:datatype="http://www.w3.org/2001/XMLSchema#gYear">1945</turing:publicationYear>
+    </turing:Paper>
+
+    <turing:Paper rdf:ID="Publication_ChemicalBasisofMorphogenesis">
+        <rdfs:label>形态发生的化学基础</rdfs:label>
+        <turing:source>NER</turing:source>
+        <turing:publicationYear rdf:datatype="http://www.w3.org/2001/XMLSchema#gYear">1952</turing:publicationYear>
+    </turing:Paper>
+
+    <turing:Paper rdf:ID="Publication_ComputingMachineryandIntelligence">
+        <rdfs:label>计算机器与智能</rdfs:label>
+        <turing:source>NER</turing:source>
+        <turing:publicationYear rdf:datatype="http://www.w3.org/2001/XMLSchema#gYear">1950</turing:publicationYear>
+    </turing:Paper>
+
+    <turing:Paper rdf:ID="Publication_TuringAward">
+        <rdfs:label>图灵奖</rdfs:label>
+        <turing:source>NER</turing:source>
+        <turing:publicationYear rdf:datatype="http://www.w3.org/2001/XMLSchema#gYear">1966</turing:publicationYear>
+    </turing:Paper>
+
+    <turing:HonoraryTitle rdf:ID="Award_FiftyPoundBanknote">
+        <rdfs:label>五十英镑纸币</rdfs:label>
+        <turing:source>NER</turing:source>
+        <turing:awardYear rdf:datatype="http://www.w3.org/2001/XMLSchema#gYear">2021</turing:awardYear>
+    </turing:HonoraryTitle>
+
+    <turing:HonoraryTitle rdf:ID="Award_RoyalSociety">
+        <rdfs:label>英国皇家学会</rdfs:label>
+        <turing:source>NER</turing:source>
+        <turing:awardYear rdf:datatype="http://www.w3.org/2001/XMLSchema#gYear">1951</turing:awardYear>
+    </turing:HonoraryTitle>
+
+    <!-- 实体统计 -->
+    <!-- City: 10 个 -->
+    <!-- HistoricalEvent: 2 个 -->
+    <!-- HonoraryTitle: 2 个 -->
+    <!-- Paper: 4 个 -->
+    <!-- Person: 1 个 -->
+
+</rdf:RDF>

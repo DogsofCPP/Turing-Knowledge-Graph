@@ -37,11 +37,12 @@ turing-rdfs.xml  ── owl:imports ──▶  turing-owl.xml  ── owl:import
 03_train_crf.py             CRF 特征工程 + 训练 → turing_crf_model.pkl
         ↓
 04_extract_and_convert.py   实体抽取 → crf_extracted_entities.xml/ttl
-                                 PER → Person
-                                 LOC → Location (实例用 City)
-                                 EVT → HistoricalEvent
-                                 PUB → Publication (实例用 Paper)
-                                 AWD → Award (实例用 HonoraryTitle)
+        ↓
+05_entity_disambiguation.py 实体消歧 → entities_deduplicated.xml
+        ↓
+06_relation_extraction.py  关系抽取（正则模式） → relations_extracted.xml
+        ↓
+07_event_extraction.py      事件时间线抽取 → events_timeline.xml
 ```
 
 **NER 实体类型映射规则：**
@@ -60,7 +61,7 @@ turing-rdfs.xml  ── owl:imports ──▶  turing-owl.xml  ── owl:import
 - **本体层**：RDFS（类层次、属性定义）、OWL（函数性属性、基数约束）
 - **实体识别**：CRF（条件随机场），scikit-learn-crfsuite
 - **分词**：英文正则、中文 jieba
-- **可视化**：原生 DOM 解析 + HTML 渲染
+- **可视化**：D3.js 力导向图（交互式）+ 表格视图，原生 DOM 解析
 
 ## 核心类
 
@@ -96,22 +97,33 @@ turing-rdfs.xml  ── owl:imports ──▶  turing-owl.xml  ── owl:import
 cd ner
 pip install -r requirements.txt
 python 01_fetch_corpus.py    # 爬取 Wikipedia 语料
-python 02_prepare_bio.py     # 生成 BIO 标注
-python 03_train_crf.py       # 训练 CRF 模型
+python 02_prepare_bio.py    # 生成 BIO 标注
+python 03_train_crf.py      # 训练 CRF 模型
 python 04_extract_and_convert.py  # 实体抽取 → RDF XML + Turtle
+python 05_entity_disambiguation.py  # 实体消歧去重
+python 06_relation_extraction.py   # 关系抽取（三元组）
+python 07_event_extraction.py      # 事件时间线抽取
 ```
 
 ### 2. 查看知识图谱
 
-直接在浏览器中打开 `index.html`，页面会自动加载 `turing-full-data.xml`，包含：
+直接在浏览器中打开 `index.html`，页面会自动加载 `turing-full-data.xml`，提供两种视图：
+- **表格视图**：按类型展示人物、事件、地点、著作、奖项
+- **图谱视图**：D3.js 力导向交互图谱，支持拖拽、缩放、筛选、点击高亮
+
+包含：
 - 手工编写的结构化实例
 - CRF 抽取并映射后的 NER 实体
+- 实体消歧后的干净实体集
+- 关系抽取三元组
+- 事件时间线
 
 ### 3. 扩展数据
 
 - 添加手工实例：编辑 `turing-full-data.xml`
 - 调整 NER 类型映射规则：修改 `ner/04_extract_and_convert.py` 中的 `CRF_TYPE_MAP`
 - 调整中英文实体合并：修改 `ner/04_extract_and_convert.py` 中的 `MERGE_MAP`
+- 调整关系抽取模式：修改 `ner/06_relation_extraction.py` 中的 `PATTERNS`
 
 ## 知识范围
 

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    图灵知识图谱 · 关系抽取结果
+    由 06_relation_extraction.py 自动生成
+    逻辑：正则关键词模式匹配，从 BIO 语料句子中抽取三元组
+    被 turing-full-data.xml 通过 owl:imports 引入
+-->
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:turing="http://www.example.org/turing#"
+    xml:base="http://www.example.org/turing">
+
+    <!-- ==================== 本体声明 ==================== -->
+    <owl:Ontology rdf:about="http://www.example.org/turing">
+        <rdfs:comment>关系抽取层 - 正则模式匹配 BIO 语料</rdfs:comment>
+    </owl:Ontology>
+
+    <!-- ==================== RDF Reification：关系三元组 ==================== -->
+
+    <!-- supervisedBy: AlonzoChurch → Turing -->
+    <rdf:Description rdf:about="#AlonzoChurch">
+        <turing:supervisedBy rdf:resource="#Turing"/>
+        <turing:source>relation-extraction</turing:source>
+    </rdf:Description>
+
+    <!-- supervisedBy: Turing → AlonzoChurch -->
+    <rdf:Description rdf:about="#Turing">
+        <turing:supervisedBy rdf:resource="#AlonzoChurch"/>
+        <turing:source>relation-extraction</turing:source>
+    </rdf:Description>
+
+    <!-- supervisedBy: 阿隆佐_邱奇 → 图灵 -->
+    <rdf:Description rdf:about="#阿隆佐_邱奇">
+        <turing:supervisedBy rdf:resource="#图灵"/>
+        <turing:source>relation-extraction</turing:source>
+    </rdf:Description>
+
+    <!-- supervisedBy: 图灵 → 阿隆佐_邱奇 -->
+    <rdf:Description rdf:about="#图灵">
+        <turing:supervisedBy rdf:resource="#阿隆佐_邱奇"/>
+        <turing:source>relation-extraction</turing:source>
+    </rdf:Description>
+
+    <!-- happenedAt: Event_WorldWarII → Location_Bletchley -->
+    <rdf:Description rdf:about="#Event_WorldWarII">
+        <turing:happenedAt rdf:resource="#Location_Bletchley"/>
+        <turing:source>relation-extraction</turing:source>
+    </rdf:Description>
+
+    <!-- workedAt: 图灵 → Location_Bletchley -->
+    <rdf:Description rdf:about="#图灵">
+        <turing:workedAt rdf:resource="#Location_Bletchley"/>
+        <turing:source>relation-extraction</turing:source>
+    </rdf:Description>
+
+    <!-- colleagueOf: 邱奇 → 图灵 -->
+    <rdf:Description rdf:about="#邱奇">
+        <turing:colleagueOf rdf:resource="#图灵"/>
+        <turing:source>relation-extraction</turing:source>
+    </rdf:Description>
+
+    <!-- colleagueOf: 图灵 → 邱奇 -->
+    <rdf:Description rdf:about="#图灵">
+        <turing:colleagueOf rdf:resource="#邱奇"/>
+        <turing:source>relation-extraction</turing:source>
+    </rdf:Description>
+
+    <!-- 共 8 条关系断言 -->
+
+</rdf:RDF>

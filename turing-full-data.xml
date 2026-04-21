@@ -15,10 +15,16 @@
     <!-- ==================== 本体引用 ==================== -->
     <owl:Ontology rdf:about="http://www.example.org/turing">
         <rdfs:comment>图灵知识图谱 - 实例数据层</rdfs:comment>
-    <!-- 通过 owl:imports 引入 OWL 层（进而引入 RDFS 层） -->
-    <owl:imports rdf:resource="ontology/turing-owl.xml"/>
-    <!-- 同时引入 NER 实体抽取结果 -->
-    <owl:imports rdf:resource="ner/output/crf_extracted_entities.xml"/>
+        <!-- 通过 owl:imports 引入 OWL 层（进而引入 RDFS 层） -->
+        <owl:imports rdf:resource="ontology/turing-owl.xml"/>
+        <!-- 引入 NER 实体抽取结果 -->
+        <owl:imports rdf:resource="ner/output/crf_extracted_entities.xml"/>
+        <!-- 引入实体消歧去重结果 -->
+        <owl:imports rdf:resource="ner/output/entities_deduplicated.xml"/>
+        <!-- 引入关系抽取结果 -->
+        <owl:imports rdf:resource="ner/output/relations_extracted.xml"/>
+        <!-- 引入事件时间线 -->
+        <owl:imports rdf:resource="ner/output/events_timeline.xml"/>
     </owl:Ontology>
 
     <!-- ==================== 手工编写的结构化实例 ==================== -->

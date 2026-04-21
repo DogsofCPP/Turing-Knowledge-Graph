@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>图灵知识图谱 - Turing Knowledge Graph</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -13,7 +14,7 @@
             padding: 20px;
             color: #eee;
         }
-        .container { max-width: 1200px; margin: 0 auto; }
+        .container { max-width: 1400px; margin: 0 auto; }
         h1 {
             text-align: center;
             color: #00d4ff;
@@ -58,45 +59,12 @@
         .badge-publication { background: #f39c12; }
         .badge-award { background: #9b59b6; }
         .badge-ner { background: #e67e22; }
-        .badge-class { background: #636e72; }
-        .badge-property { background: #00b894; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); }
         th { background: rgba(0,212,255,0.2); color: #00d4ff; font-weight: 600; }
         tr:hover { background: rgba(255,255,255,0.05); }
         .resource { color: #ffd93d; }
         .literal { color: #98d8aa; }
-        .comment { color: #888; font-style: italic; }
-        .reification {
-            background: rgba(155,89,182,0.15);
-            border-left: 4px solid #9b59b6;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-        }
-        .reification h4 { color: #9b59b6; margin-bottom: 10px; }
-        .load-area {
-            background: rgba(255,255,255,0.05);
-            border: 2px dashed rgba(255,255,255,0.2);
-            border-radius: 12px;
-            padding: 40px;
-            text-align: center;
-            margin: 20px 0;
-        }
-        .load-area input[type="file"] { display: none; }
-        .load-area label {
-            display: inline-block;
-            background: #00d4ff;
-            color: #1a1a2e;
-            padding: 12px 30px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-        .load-area label:hover { background: #00b8e6; transform: scale(1.05); }
-        .ref-link { color: #ffd93d; font-family: monospace; font-size: 12px; }
-        .hidden { display: none; }
         .entity-list { display: flex; flex-wrap: wrap; gap: 8px; }
         .entity-tag {
             background: rgba(255,255,255,0.1);
@@ -130,11 +98,6 @@
             margin: 3px;
             display: inline-block;
         }
-        .source-note {
-            font-size: 11px;
-            color: #666;
-            margin-left: 4px;
-        }
         .ontology-chain {
             font-size: 12px;
             color: #888;
@@ -144,6 +107,136 @@
             border-radius: 8px;
         }
         .ontology-chain a { color: #00d4ff; }
+
+        /* D3 Graph Styles */
+        #graphSection { display: none; }
+        #graphSection.visible { display: block; }
+        #kg-graph {
+            width: 100%;
+            height: 600px;
+            border-radius: 8px;
+            background: rgba(0,0,0,0.3);
+            cursor: grab;
+        }
+        #kg-graph:active { cursor: grabbing; }
+        .graph-controls {
+            margin-bottom: 12px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .graph-controls span { font-size: 13px; color: #aaa; }
+        .filter-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #ccc;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .filter-btn:hover { background: rgba(255,255,255,0.2); }
+        .filter-btn.active { border-color: #00d4ff; color: #00d4ff; background: rgba(0,212,255,0.1); }
+        .filter-btn .dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+        .node circle {
+            cursor: pointer;
+            stroke-width: 2px;
+            transition: stroke-width 0.2s;
+        }
+        .node circle:hover { stroke-width: 4px; }
+        .node text {
+            font-size: 11px;
+            fill: #ddd;
+            pointer-events: none;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+        }
+        .link {
+            stroke-opacity: 0.6;
+            fill: none;
+        }
+        .link-label {
+            font-size: 10px;
+            fill: #888;
+            pointer-events: none;
+        }
+        #graph-tooltip {
+            position: absolute;
+            background: rgba(22,33,62,0.97);
+            border: 1px solid rgba(0,212,255,0.4);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            color: #eee;
+            pointer-events: none;
+            max-width: 260px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            display: none;
+            z-index: 100;
+        }
+        #graph-tooltip .tt-type {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 4px;
+        }
+        #graph-tooltip .tt-id {
+            font-family: monospace;
+            font-size: 11px;
+            color: #555;
+            margin-top: 4px;
+        }
+        #graph-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 10px;
+            font-size: 12px;
+        }
+        #graph-legend .leg-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #aaa;
+        }
+        #graph-legend .leg-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .hidden { display: none !important; }
+        #graph-stats {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .section-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .section-toggle button {
+            background: rgba(0,212,255,0.1);
+            border: 1px solid rgba(0,212,255,0.3);
+            color: #00d4ff;
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        .section-toggle button:hover { background: rgba(0,212,255,0.2); }
+        .section-toggle button.active {
+            background: #00d4ff;
+            color: #1a1a2e;
+        }
     </style>
 </head>
 <body>
@@ -162,69 +255,113 @@
         </div>
 
         <div id="content" class="hidden">
-            <!-- 人物 -->
-            <div class="block" id="personSection">
-                <h2>人物 (Person)</h2>
-                <div id="personContent"></div>
+            <div class="section-toggle">
+                <button id="btn-table" class="active" onclick="showSection('table')">表格视图</button>
+                <button id="btn-graph" onclick="showSection('graph')">图谱视图</button>
             </div>
 
-            <!-- 事件 -->
-            <div class="block" id="eventSection">
-                <h2>事件 (Events)</h2>
-                <table id="eventTable">
-                    <thead><tr><th>事件</th><th>类型</th><th>日期</th><th>地点</th><th>描述</th></tr></thead>
-                    <tbody id="eventBody"></tbody>
-                </table>
+            <!-- 表格视图 -->
+            <div id="tableView">
+                <div class="block" id="personSection">
+                    <h2>人物 (Person)</h2>
+                    <div id="personContent"></div>
+                </div>
+
+                <div class="block" id="eventSection">
+                    <h2>事件 (Events)</h2>
+                    <table id="eventTable">
+                        <thead><tr><th>事件</th><th>类型</th><th>日期</th><th>地点</th><th>描述</th></tr></thead>
+                        <tbody id="eventBody"></tbody>
+                    </table>
+                </div>
+
+                <div class="block" id="locationSection">
+                    <h2>地点 (Locations)</h2>
+                    <table id="locationTable">
+                        <thead><tr><th>城市</th><th>国家</th><th>描述</th></tr></thead>
+                        <tbody id="locationBody"></tbody>
+                    </table>
+                </div>
+
+                <div class="block" id="publicationSection">
+                    <h2>学术著作 (Publications)</h2>
+                    <table id="publicationTable">
+                        <thead><tr><th>著作</th><th>类型</th><th>年份</th><th>描述</th></tr></thead>
+                        <tbody id="publicationBody"></tbody>
+                    </table>
+                </div>
+
+                <div class="block" id="awardSection">
+                    <h2>荣誉奖项 (Awards)</h2>
+                    <table id="awardTable">
+                        <thead><tr><th>奖项</th><th>类型</th><th>年份</th><th>描述</th></tr></thead>
+                        <tbody id="awardBody"></tbody>
+                    </table>
+                </div>
+
+                <div class="block" id="nerSection">
+                    <h2>NER 抽取实体 <span class="badge badge-ner">CRF</span></h2>
+                    <p style="color:#888;font-size:13px;margin-bottom:12px">
+                        以下实体由 CRF（条件随机场）从 Wikipedia 语料中自动抽取，经类型映射后纳入知识图谱
+                    </p>
+                    <div id="nerContent"></div>
+                </div>
             </div>
 
-            <!-- 地点 -->
-            <div class="block" id="locationSection">
-                <h2>地点 (Locations)</h2>
-                <table id="locationTable">
-                    <thead><tr><th>城市</th><th>国家</th><th>描述</th></tr></thead>
-                    <tbody id="locationBody"></tbody>
-                </table>
+            <!-- 图谱视图 -->
+            <div id="graphView" class="hidden">
+                <div class="block" id="graphSection">
+                    <h2>知识图谱 <span class="badge badge-ner">D3.js</span></h2>
+                    <p id="graph-stats"></p>
+                    <div class="graph-controls">
+                        <span>筛选：</span>
+                        <button class="filter-btn active" id="filter-all" onclick="setFilter('all')">
+                            全部
+                        </button>
+                        <button class="filter-btn" id="filter-person" onclick="setFilter('Person')">
+                            <span class="dot" style="background:#e74c3c"></span>人物
+                        </button>
+                        <button class="filter-btn" id="filter-location" onclick="setFilter('Location')">
+                            <span class="dot" style="background:#27ae60"></span>地点
+                        </button>
+                        <button class="filter-btn" id="filter-event" onclick="setFilter('Event')">
+                            <span class="dot" style="background:#3498db"></span>事件
+                        </button>
+                        <button class="filter-btn" id="filter-pub" onclick="setFilter('Publication')">
+                            <span class="dot" style="background:#f39c12"></span>著作
+                        </button>
+                        <button class="filter-btn" id="filter-award" onclick="setFilter('Award')">
+                            <span class="dot" style="background:#9b59b6"></span>奖项
+                        </button>
+                        <span style="margin-left:auto;font-size:11px;color:#555">拖拽节点 · 滚轮缩放 · 点击高亮邻居</span>
+                    </div>
+                    <svg id="kg-graph"></svg>
+                    <div id="graph-legend">
+                        <div class="leg-item"><div class="leg-dot" style="background:#e74c3c"></div>人物</div>
+                        <div class="leg-item"><div class="leg-dot" style="background:#27ae60"></div>地点</div>
+                        <div class="leg-item"><div class="leg-dot" style="background:#3498db"></div>事件</div>
+                        <div class="leg-item"><div class="leg-dot" style="background:#f39c12"></div>著作</div>
+                        <div class="leg-item"><div class="leg-dot" style="background:#9b59b6"></div>奖项</div>
+                        <div class="leg-item"><div class="leg-dot" style="background:#888"></div>—— participatedIn</div>
+                        <div class="leg-item"><div class="leg-dot" style="background:#555"></div>— wrote / received</div>
+                        <div class="leg-item"><div class="leg-dot" style="background:#444;border:1px solid #666"></div>— 其他关系</div>
+                    </div>
+                </div>
             </div>
-
-            <!-- 著作 -->
-            <div class="block" id="publicationSection">
-                <h2>学术著作 (Publications)</h2>
-                <table id="publicationTable">
-                    <thead><tr><th>著作</th><th>类型</th><th>年份</th><th>描述</th></tr></thead>
-                    <tbody id="publicationBody"></tbody>
-                </table>
-            </div>
-
-            <!-- 奖项 -->
-            <div class="block" id="awardSection">
-                <h2>荣誉奖项 (Awards)</h2>
-                <table id="awardTable">
-                    <thead><tr><th>奖项</th><th>类型</th><th>年份</th><th>描述</th></tr></thead>
-                    <tbody id="awardBody"></tbody>
-                </table>
-            </div>
-
-            <!-- NER 抽取实体 -->
-            <div class="block" id="nerSection">
-                <h2>NER 抽取实体 <span class="badge badge-ner">CRF</span></h2>
-                <p style="color:#888;font-size:13px;margin-bottom:12px">
-                    以下实体由 CRF（条件随机场）从 Wikipedia 语料中自动抽取，经类型映射后纳入知识图谱
-                </p>
-                <div id="nerContent"></div>
-            </div>
-
         </div>
 
         <div id="loading" class="loading">正在加载数据</div>
 
         <div id="loadArea" class="hidden">
             <div class="load-area">
-                <p style="margin-bottom: 20px; color: #888;">自动加载失败，请手动选择 RDF/XML 文件</p>
+                <p style="margin-bottom:20px;color:#888">自动加载失败，请手动选择 RDF/XML 文件</p>
                 <input type="file" id="fileInput" accept=".xml,.ttl">
                 <label for="fileInput">选择文件</label>
             </div>
         </div>
     </div>
+
+    <div id="graph-tooltip"></div>
 
     <script>
         const NS = {
@@ -233,13 +370,559 @@
             turing: 'http://www.example.org/turing#'
         };
 
+        const TYPE_COLORS = {
+            'Person': '#e74c3c',
+            'City': '#27ae60',
+            'Country': '#2ecc71',
+            'InstitutionLocation': '#27ae60',
+            'Location': '#27ae60',
+            'PersonalEvent': '#3498db',
+            'AcademicEvent': '#2980b9',
+            'HistoricalEvent': '#1abc9c',
+            'Event': '#3498db',
+            'Paper': '#f39c12',
+            'TechnicalReport': '#e67e22',
+            'Book': '#d35400',
+            'Publication': '#f39c12',
+            'AcademicAward': '#9b59b6',
+            'HonoraryTitle': '#8e44ad',
+            'Award': '#9b59b6',
+        };
+
+        const REL_COLORS = {
+            'participatedIn': '#888',
+            'wrote': '#555',
+            'received': '#555',
+            'happenedAt': '#444',
+            'workedAt': '#555',
+            'graduatedFrom': '#555',
+            'supervisedBy': '#666',
+            'colleagueOf': '#666',
+        };
+
         const parser = new DOMParser();
         let entityLabels = {};
+        let allGraphNodes = [];
+        let allGraphLinks = [];
+        let currentFilter = 'all';
+        let simulation = null;
 
+        // ============================================================
+        // Section Toggle
+        // ============================================================
+        function showSection(name) {
+            const tableView = document.getElementById('tableView');
+            const graphView = document.getElementById('graphView');
+            const btnTable = document.getElementById('btn-table');
+            const btnGraph = document.getElementById('btn-graph');
+            const graphSection = document.getElementById('graphSection');
+
+            if (name === 'table') {
+                tableView.classList.remove('hidden');
+                graphView.classList.add('hidden');
+                btnTable.classList.add('active');
+                btnGraph.classList.remove('active');
+            } else {
+                tableView.classList.add('hidden');
+                graphView.classList.remove('hidden');
+                btnTable.classList.remove('active');
+                btnGraph.classList.add('active');
+                graphSection.classList.add('visible');
+                // Render graph if not yet rendered
+                if (!simulation) {
+                    renderForceGraph();
+                }
+            }
+        }
+
+        // ============================================================
+        // RDF Parsing Helpers
+        // ============================================================
+        function getLabel(item) {
+            const label = item.getElementsByTagNameNS(NS.rdfs, 'label')[0];
+            return label ? label.textContent : item.getAttribute('rdf:ID') || '';
+        }
+
+        function getValue(item, prop) {
+            const el = item.getElementsByTagNameNS(NS.turing, prop)[0];
+            return el ? (el.textContent || '') : '';
+        }
+
+        function getEntityLabel(id) {
+            return entityLabels[id] || id;
+        }
+
+        function getEntityType(item) {
+            const tag = item.tagName || '';
+            const local = tag.replace(/^.*[}:]/, '') || 'Entity';
+            if (local.includes('Academic') || local.includes('Personal') || local.includes('Historical')) return 'Event';
+            if (local.includes('Paper') || local.includes('Report') || local.includes('Book')) return 'Publication';
+            if (local.includes('Award')) return 'Award';
+            return local;
+        }
+
+        // ============================================================
+        // Build Graph Data
+        // ============================================================
+        function buildGraphData(doc) {
+            const nodesMap = {};
+            const links = [];
+            const allElements = doc.getElementsByTagName('*');
+
+            // Collect all entities
+            for (const el of allElements) {
+                const rdfId = el.getAttribute('rdf:ID');
+                if (!rdfId) continue;
+
+                const tag = el.tagName || '';
+                let localType = tag.replace(/^.*[}:]/, '') || 'Entity';
+
+                // Map subtypes to base types for visualization
+                let vizType = getEntityType(el);
+                const label = getLabel(el);
+
+                // Determine color
+                const color = TYPE_COLORS[localType] || TYPE_COLORS[vizType] || '#aaa';
+                const size = localType === 'Person' ? 20 : 12;
+
+                // Get description
+                const desc = getValue(el, 'description');
+                const year = getValue(el, 'eventDate') || getValue(el, 'publicationYear') || getValue(el, 'awardYear');
+
+                nodesMap[rdfId] = {
+                    id: rdfId,
+                    label: label,
+                    type: localType,
+                    vizType: vizType,
+                    color: color,
+                    size: size,
+                    description: desc,
+                    year: year,
+                };
+
+                // Get all object property links
+                const turNS = NS.turing;
+                for (const child of el.children) {
+                    const childTag = child.tagName || '';
+                    if (!childTag.includes('turing:')) continue;
+                    const prop = childTag.replace(/^.*[}:]/, '');
+                    const res = child.getAttributeNS(NS.rdf, 'resource');
+                    if (res) {
+                        const targetId = res.replace('#', '');
+                        if (targetId && targetId !== rdfId) {
+                            links.push({
+                                source: rdfId,
+                                target: targetId,
+                                predicate: prop,
+                            });
+                        }
+                    }
+                }
+            }
+
+            // Convert to arrays
+            const nodes = Object.values(nodesMap);
+            return { nodes, links };
+        }
+
+        // ============================================================
+        // D3 Force Graph
+        // ============================================================
+        function renderForceGraph() {
+            const svg = d3.select('#kg-graph');
+            const container = svg.node().parentElement;
+            const W = container.clientWidth || 1200;
+            const H = 600;
+
+            svg.attr('width', W).attr('height', H).attr('viewBox', [0, 0, W, H]);
+
+            // Clear previous
+            svg.selectAll('*').remove();
+
+            const g = svg.append('g');
+
+            // Zoom
+            const zoom = d3.zoom()
+                .scaleExtent([0.2, 4])
+                .on('zoom', (event) => g.attr('transform', event.transform));
+            svg.call(zoom);
+
+            // Defs for arrows
+            const defs = svg.append('defs');
+            defs.append('marker')
+                .attr('id', 'arrow')
+                .attr('viewBox', '0 -5 10 10')
+                .attr('refX', 18)
+                .attr('refY', 0)
+                .attr('markerWidth', 6)
+                .attr('markerHeight', 6)
+                .attr('orient', 'auto')
+                .append('path')
+                .attr('d', 'M0,-5L10,0L0,5')
+                .attr('fill', '#555');
+
+            // Filter data
+            const nodes = allGraphNodes.filter(n => {
+                if (currentFilter === 'all') return true;
+                if (currentFilter === 'Event') return n.vizType === 'Event';
+                return n.vizType === currentFilter;
+            });
+            const nodeIds = new Set(nodes.map(n => n.id));
+            const links = allGraphLinks.filter(l =>
+                nodeIds.has(l.source.id || l.source) && nodeIds.has(l.target.id || l.target)
+            );
+
+            document.getElementById('graph-stats').textContent =
+                `节点: ${nodes.length}  边: ${links.length}`;
+
+            // Tooltip
+            const tooltip = document.getElementById('graph-tooltip');
+
+            function showTooltip(event, d) {
+                let html = `<div class="tt-type">${d.type}</div>`;
+                html += `<strong>${d.label}</strong>`;
+                if (d.year) html += `<div style="color:#aaa;margin-top:3px">${d.year}</div>`;
+                if (d.description) html += `<div style="color:#888;font-size:11px;margin-top:3px">${d.description.substring(0,80)}</div>`;
+                html += `<div class="tt-id">${d.id}</div>`;
+                tooltip.innerHTML = html;
+                tooltip.style.display = 'block';
+                tooltip.style.left = (event.pageX + 12) + 'px';
+                tooltip.style.top = (event.pageY - 10) + 'px';
+            }
+
+            function hideTooltip() {
+                tooltip.style.display = 'none';
+            }
+
+            // Links
+            const link = g.append('g').attr('class', 'links')
+                .selectAll('line')
+                .data(links)
+                .join('line')
+                .attr('class', 'link')
+                .attr('stroke', d => REL_COLORS[d.predicate] || '#444')
+                .attr('stroke-width', d => ['participatedIn', 'wrote', 'received'].includes(d.predicate) ? 1.5 : 1)
+                .attr('stroke-dasharray', d => ['supervisedBy', 'colleagueOf'].includes(d.predicate) ? '4,3' : null)
+                .attr('marker-end', d => ['happenedAt', 'workedAt', 'graduatedFrom', 'supervisedBy'].includes(d.predicate) ? 'url(#arrow)' : null);
+
+            // Link labels for important predicates
+            const linkLabel = g.append('g').attr('class', 'link-labels')
+                .selectAll('text')
+                .data(links.filter(l => ['participatedIn', 'wrote', 'received'].includes(l.predicate)))
+                .join('text')
+                .attr('class', 'link-label')
+                .attr('fill', '#666')
+                .attr('font-size', '9px')
+                .attr('text-anchor', 'middle')
+                .text(d => d.predicate);
+
+            // Nodes
+            const node = g.append('g').attr('class', 'nodes')
+                .selectAll('g')
+                .data(nodes)
+                .join('g')
+                .attr('class', 'node')
+                .call(d3.drag()
+                    .on('start', (event, d) => {
+                        if (!event.active) simulation.alphaTarget(0.3).restart();
+                        d.fx = d.x; d.fy = d.y;
+                    })
+                    .on('drag', (event, d) => { d.fx = event.x; d.fy = event.y; })
+                    .on('end', (event, d) => {
+                        if (!event.active) simulation.alphaTarget(0);
+                        d.fx = null; d.fy = null;
+                    })
+                );
+
+            // Node circles
+            node.append('circle')
+                .attr('r', d => d.size)
+                .attr('fill', d => d.color)
+                .attr('stroke', '#fff')
+                .attr('opacity', 0.9)
+                .on('mouseover', function(event, d) {
+                    d3.select(this).attr('stroke', '#00d4ff').attr('stroke-width', 3);
+                    showTooltip(event, d);
+                    highlightNeighbors(d.id, true);
+                })
+                .on('mousemove', function(event, d) {
+                    showTooltip(event, d);
+                })
+                .on('mouseout', function(event, d) {
+                    d3.select(this).attr('stroke', '#fff').attr('stroke-width', 2);
+                    hideTooltip();
+                    highlightNeighbors(d.id, false);
+                })
+                .on('click', function(event, d) {
+                    event.stopPropagation();
+                    toggleHighlight(d.id);
+                });
+
+            // Node labels
+            node.append('text')
+                .attr('dx', d => d.size + 4)
+                .attr('dy', '0.35em')
+                .text(d => d.label.length > 18 ? d.label.substring(0, 16) + '…' : d.label);
+
+            // Highlight neighbors
+            function highlightNeighbors(nodeId, on) {
+                const connected = new Set();
+                links.forEach(l => {
+                    const s = l.source.id || l.source;
+                    const t = l.target.id || l.target;
+                    if (s === nodeId) connected.add(t);
+                    if (t === nodeId) connected.add(s);
+                });
+                node.select('circle').attr('opacity', d => {
+                    if (currentFilter !== 'all') return 0.9;
+                    if (d.id === nodeId || connected.has(d.id)) return 1;
+                    return 0.15;
+                });
+                link.attr('opacity', d => {
+                    if (currentFilter !== 'all') return 0.6;
+                    const s = d.source.id || d.source;
+                    const t = d.target.id || d.target;
+                    if (s === nodeId || t === nodeId) return 1;
+                    return 0.05;
+                });
+            }
+
+            // Click to lock highlight
+            let lockedHighlight = null;
+            function toggleHighlight(nodeId) {
+                if (lockedHighlight === nodeId) {
+                    lockedHighlight = null;
+                    node.select('circle').attr('opacity', 0.9);
+                    link.attr('opacity', 0.6);
+                } else {
+                    lockedHighlight = nodeId;
+                    highlightNeighbors(nodeId, true);
+                }
+            }
+            svg.on('click', () => {
+                lockedHighlight = null;
+                node.select('circle').attr('opacity', 0.9);
+                link.attr('opacity', 0.6);
+            });
+
+            // Force simulation
+            simulation = d3.forceSimulation(nodes)
+                .force('link', d3.forceLink(links).id(d => d.id).distance(d => {
+                    if (d.predicate === 'participatedIn') return 120;
+                    if (d.predicate === 'wrote') return 100;
+                    if (d.predicate === 'received') return 100;
+                    return 80;
+                }).strength(0.3))
+                .force('charge', d3.forceManyBody().strength(-300))
+                .force('center', d3.forceCenter(W / 2, H / 2))
+                .force('collision', d3.forceCollide().radius(d => d.size + 20))
+                .on('tick', () => {
+                    link
+                        .attr('x1', d => d.source.x)
+                        .attr('y1', d => d.source.y)
+                        .attr('x2', d => d.target.x)
+                        .attr('y2', d => d.target.y);
+                    linkLabel
+                        .attr('x', d => (d.source.x + d.target.x) / 2)
+                        .attr('y', d => (d.source.y + d.target.y) / 2);
+                    node.attr('transform', d => `translate(${d.x},${d.y})`);
+                });
+
+            // Initial auto-fit zoom
+            setTimeout(() => {
+                const bounds = g.node().getBBox();
+                const fullW = bounds.width + 80;
+                const fullH = bounds.height + 80;
+                const scale = Math.min(W / fullW, H / fullH, 1.2);
+                const tx = (W - bounds.width * scale) / 2 - bounds.x * scale;
+                const ty = (H - bounds.height * scale) / 2 - bounds.y * scale;
+                svg.call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
+            }, 1500);
+        }
+
+        // ============================================================
+        // Filter
+        // ============================================================
+        function setFilter(type) {
+            currentFilter = type;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            const idMap = {
+                'all': 'filter-all', 'Person': 'filter-person',
+                'Location': 'filter-location', 'Event': 'filter-event',
+                'Publication': 'filter-pub', 'Award': 'filter-award'
+            };
+            const btn = document.getElementById(idMap[type]);
+            if (btn) btn.classList.add('active');
+            renderForceGraph();
+        }
+
+        // ============================================================
+        // Table Renderers
+        // ============================================================
+        function renderPerson(doc) {
+            const persons = doc.getElementsByTagNameNS(NS.turing, 'Person');
+            let html = '';
+            for (const p of persons) {
+                const name = getLabel(p);
+                const desc = getValue(p, 'description');
+                const events = p.getElementsByTagNameNS(NS.turing, 'participatedIn');
+                const pubs = p.getElementsByTagNameNS(NS.turing, 'wrote');
+                const awards = p.getElementsByTagNameNS(NS.turing, 'received');
+
+                const makeTags = (els) => Array.from(els).map(e => {
+                    const id = (e.getAttributeNS(NS.rdf, 'resource') || '').replace('#', '');
+                    return `<span class="entity-tag">${getEntityLabel(id)}</span>`;
+                });
+
+                html += `<div class="person-card">
+                    <h3><span class="badge badge-person">人</span>${name}</h3>
+                    <p>${desc}</p>
+                    <p><strong>参与事件:</strong></p>
+                    <div class="entity-list">${makeTags(events).join('') || '无'}</div>
+                    <p style="margin-top:10px"><strong>撰写著作:</strong></p>
+                    <div class="entity-list">${makeTags(pubs).join('') || '无'}</div>
+                    <p style="margin-top:10px"><strong>获得奖项:</strong></p>
+                    <div class="entity-list">${makeTags(awards).join('') || '无'}</div>
+                </div>`;
+            }
+            document.getElementById('personContent').innerHTML = html;
+        }
+
+        function renderEvents(doc) {
+            const types = ['AcademicEvent', 'PersonalEvent', 'HistoricalEvent'];
+            const data = [];
+            for (const t of types) {
+                for (const item of doc.getElementsByTagNameNS(NS.turing, t)) {
+                    const id = item.getAttribute('rdf:ID');
+                    const label = getLabel(item);
+                    const typeTag = t.replace('Event', '');
+                    const date = getValue(item, 'eventDate');
+                    const locEl = item.getElementsByTagNameNS(NS.turing, 'happenedAt')[0];
+                    const locId = locEl ? (locEl.getAttributeNS(NS.rdf, 'resource') || '').replace('#', '') : '';
+                    const locLabel = getEntityLabel(locId);
+                    const desc = getValue(item, 'description');
+                    data.push({ label, typeTag, date, locLabel, desc });
+                }
+            }
+            data.sort((a, b) => new Date(a.date || 0) - new Date(b.date || 0));
+            let rows = '';
+            for (const e of data) {
+                rows += `<tr><td>${e.label}</td>
+                    <td><span class="badge badge-event">${e.typeTag}</span></td>
+                    <td>${e.date}</td>
+                    <td><span class="resource">${e.locLabel}</span></td>
+                    <td>${e.desc}</td></tr>`;
+            }
+            document.getElementById('eventBody').innerHTML = rows || '<tr><td colspan="5" style="color:#666">无事件数据</td></tr>';
+        }
+
+        function renderLocations(doc) {
+            let rows = '';
+            for (const item of doc.getElementsByTagNameNS(NS.turing, 'City')) {
+                const label = getLabel(item);
+                const country = getValue(item, 'country');
+                const desc = getValue(item, 'description');
+                rows += `<tr><td><span class="badge badge-location">地</span>${label}</td><td>${country}</td><td>${desc}</td></tr>`;
+            }
+            document.getElementById('locationBody').innerHTML = rows || '<tr><td colspan="3" style="color:#666">无地点数据</td></tr>';
+        }
+
+        function renderPublications(doc) {
+            let rows = '';
+            for (const t of ['Paper', 'TechnicalReport', 'Book']) {
+                for (const item of doc.getElementsByTagNameNS(NS.turing, t)) {
+                    const label = getLabel(item);
+                    const year = getValue(item, 'publicationYear');
+                    const desc = getValue(item, 'description');
+                    const typeLabel = t === 'TechnicalReport' ? '报告' : t === 'Paper' ? '论文' : '书籍';
+                    rows += `<tr><td>${label}</td><td><span class="badge badge-publication">${typeLabel}</span></td><td>${year}</td><td>${desc}</td></tr>`;
+                }
+            }
+            document.getElementById('publicationBody').innerHTML = rows || '<tr><td colspan="4" style="color:#666">无著作数据</td></tr>';
+        }
+
+        function renderAwards(doc) {
+            let rows = '';
+            for (const t of ['AcademicAward', 'HonoraryTitle']) {
+                for (const item of doc.getElementsByTagNameNS(NS.turing, t)) {
+                    const label = getLabel(item);
+                    const typeLabel = t === 'AcademicAward' ? '学术' : '荣誉';
+                    const year = getValue(item, 'awardYear');
+                    const desc = getValue(item, 'description');
+                    rows += `<tr><td>${label}</td><td><span class="badge badge-award">${typeLabel}</span></td><td>${year}</td><td>${desc}</td></tr>`;
+                }
+            }
+            document.getElementById('awardBody').innerHTML = rows || '<tr><td colspan="4" style="color:#666">无奖项数据</td></tr>';
+        }
+
+        function renderNEREntities(doc) {
+            // Find entities from NER source (those with turing:source == NER or relation-extraction)
+            const allElements = doc.getElementsByTagName('*');
+            const nerEntities = { Person: [], Location: [], Publication: [], Award: [], Event: [] };
+
+            for (const el of allElements) {
+                const source = el.getElementsByTagNameNS(NS.turing, 'source')[0];
+                if (!source) continue;
+                const srcText = source.textContent || '';
+                if (!['NER', 'relation-extraction', 'event-extraction'].includes(srcText.trim())) continue;
+
+                const id = el.getAttribute('rdf:ID');
+                if (!id) continue;
+                const label = getLabel(el);
+                const tag = el.tagName || '';
+                let localType = tag.replace(/^.*[}:]/, '') || 'Entity';
+                let vizType = getEntityType(el);
+
+                if (nerEntities[vizType]) {
+                    nerEntities[vizType].push({ label });
+                }
+            }
+
+            const typeLabels = { Person: '人物', Location: '地点', Publication: '著作', Award: '奖项', Event: '事件' };
+            let html = '';
+            for (const [type, items] of Object.entries(nerEntities)) {
+                if (!items.length) continue;
+                const label = typeLabels[type] || type;
+                html += `<div style="margin-bottom:12px">
+                    <h3 style="color:#e67e22;font-size:1em;margin-bottom:6px">
+                        <span class="badge badge-ner">${label}</span>
+                    </h3>
+                    <div style="display:flex;flex-wrap:wrap;gap:4px">`;
+                for (const item of items) {
+                    html += `<span class="ner-tag">${item.label}</span>`;
+                }
+                html += `</div></div>`;
+            }
+
+            if (html) {
+                document.getElementById('nerContent').innerHTML = html;
+            } else {
+                document.getElementById('nerSection').style.display = 'none';
+            }
+        }
+
+        // ============================================================
+        // Main Init
+        // ============================================================
         function applyParsedDoc(doc) {
             const err = doc.querySelector('parsererror');
             if (err) throw new Error('XML 解析失败');
-            buildLabelMap(doc);
+
+            // Build label map
+            entityLabels = {};
+            for (const el of doc.getElementsByTagName('*')) {
+                const rdfId = el.getAttribute('rdf:ID');
+                if (rdfId) {
+                    const label = el.getElementsByTagNameNS(NS.rdfs, 'label')[0];
+                    entityLabels[rdfId] = label ? label.textContent : rdfId;
+                }
+            }
+
+            // Build graph data
+            const gd = buildGraphData(doc);
+            allGraphNodes = gd.nodes;
+            allGraphLinks = gd.links;
+
             showContent();
             renderPerson(doc);
             renderEvents(doc);
@@ -249,13 +932,16 @@
             renderNEREntities(doc);
         }
 
-        // 加载顺序：优先 turing-full-data.xml（包含 owl:imports 链）
+        function showContent() {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('loadArea').classList.add('hidden');
+            document.getElementById('content').classList.remove('hidden');
+        }
+
         window.addEventListener('DOMContentLoaded', async () => {
             const candidates = [
                 'turing-full-data.xml',
                 '../turing-full-data.xml',
-                'ner/output/crf_extracted_entities.xml',
-                '../ner/output/crf_extracted_entities.xml',
             ];
             let loaded = false;
             for (const path of candidates) {
@@ -269,12 +955,9 @@
                         loaded = true;
                         break;
                     }
-                } catch (e) {
-                    // 继续尝试下一个
-                }
+                } catch (e) { /* continue */ }
             }
             if (!loaded) {
-                console.warn('自动加载失败，启用手动选择');
                 document.getElementById('loading').classList.add('hidden');
                 document.getElementById('loadArea').classList.remove('hidden');
                 document.getElementById('fileInput').addEventListener('change', async (e) => {
@@ -285,227 +968,6 @@
                 });
             }
         });
-
-        function showContent() {
-            document.getElementById('loading').classList.add('hidden');
-            document.getElementById('loadArea').classList.add('hidden');
-            document.getElementById('content').classList.remove('hidden');
-        }
-
-        function buildLabelMap(doc) {
-            entityLabels = {};
-            const allElements = doc.getElementsByTagName('*');
-            for (const el of allElements) {
-                const rdfId = el.getAttribute('rdf:ID');
-                if (rdfId) {
-                    const label = el.getElementsByTagNameNS(NS.rdfs, 'label')[0];
-                    entityLabels[rdfId] = label ? label.textContent : rdfId;
-                }
-            }
-        }
-
-        function getLabel(item) {
-            const label = item.getElementsByTagNameNS(NS.rdfs, 'label')[0];
-            return label ? label.textContent : item.getAttribute('rdf:ID') || '';
-        }
-
-        function getType(item) {
-            const tag = item.tagName.toLowerCase();
-            if (tag.includes('academic')) return '学术';
-            if (tag.includes('personal')) return '个人';
-            if (tag.includes('historical')) return '历史';
-            if (tag.includes('paper')) return '论文';
-            if (tag.includes('report')) return '报告';
-            if (tag.includes('book')) return '书籍';
-            return '';
-        }
-
-        function getResourceId(item, prop) {
-            const el = item.getElementsByTagNameNS(NS.turing, prop)[0];
-            if (el) {
-                const res = el.getAttributeNS(NS.rdf, 'resource');
-                return res ? res.replace('#', '') : '';
-            }
-            return '';
-        }
-
-        function getValue(item, prop) {
-            const el = item.getElementsByTagNameNS(NS.turing, prop)[0];
-            return el ? el.textContent : '';
-        }
-
-        function getEntityLabel(id) {
-            return entityLabels[id] || id;
-        }
-
-        function renderPerson(doc) {
-            const persons = doc.getElementsByTagNameNS(NS.turing, 'Person');
-            let html = '';
-            for (const p of persons) {
-                const name = getLabel(p);
-                const desc = getValue(p, 'description');
-                const events = p.getElementsByTagNameNS(NS.turing, 'participatedIn');
-                const pubs = p.getElementsByTagNameNS(NS.turing, 'wrote');
-                const awards = p.getElementsByTagNameNS(NS.turing, 'received');
-
-                const eventTags = Array.from(events).map(e => {
-                    const id = e.getAttributeNS(NS.rdf, 'resource').replace('#', '');
-                    return `<span class="entity-tag">${getEntityLabel(id)}</span>`;
-                });
-
-                const pubTags = Array.from(pubs).map(e => {
-                    const id = e.getAttributeNS(NS.rdf, 'resource').replace('#', '');
-                    return `<span class="entity-tag">${getEntityLabel(id)}</span>`;
-                });
-
-                const awardTags = Array.from(awards).map(e => {
-                    const id = e.getAttributeNS(NS.rdf, 'resource').replace('#', '');
-                    return `<span class="entity-tag">${getEntityLabel(id)}</span>`;
-                });
-
-                html += `<div class="person-card">
-                    <h3><span class="badge badge-person">人</span>${name}</h3>
-                    <p>${desc}</p>
-                    <p><strong>参与事件:</strong></p>
-                    <div class="entity-list">${eventTags.join('') || '无'}</div>
-                    <p style="margin-top:10px"><strong>撰写著作:</strong></p>
-                    <div class="entity-list">${pubTags.join('') || '无'}</div>
-                    <p style="margin-top:10px"><strong>获得奖项:</strong></p>
-                    <div class="entity-list">${awardTags.join('') || '无'}</div>
-                </div>`;
-            }
-            document.getElementById('personContent').innerHTML = html;
-        }
-
-        function renderEvents(doc) {
-            const types = ['AcademicEvent', 'PersonalEvent', 'HistoricalEvent'];
-            const eventData = [];
-
-            for (const t of types) {
-                const items = doc.getElementsByTagNameNS(NS.turing, t);
-                for (const item of items) {
-                    const id = item.getAttribute('rdf:ID');
-                    const label = getLabel(item);
-                    const type = getType(item);
-                    const date = getValue(item, 'eventDate');
-                    const locId = getResourceId(item, 'happenedAt');
-                    const locLabel = getEntityLabel(locId);
-                    const desc = getValue(item, 'description');
-                    eventData.push({ label, type, date, locLabel, desc });
-                }
-            }
-
-            eventData.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-            let rows = '';
-            for (const e of eventData) {
-                rows += `<tr>
-                    <td>${e.label}</td>
-                    <td><span class="badge badge-event">${e.type}</span></td>
-                    <td>${e.date}</td>
-                    <td><span class="resource">${e.locLabel}</span></td>
-                    <td>${e.desc}</td>
-                </tr>`;
-            }
-            document.getElementById('eventBody').innerHTML = rows;
-        }
-
-        function renderLocations(doc) {
-            const items = doc.getElementsByTagNameNS(NS.turing, 'City');
-            let rows = '';
-            for (const item of items) {
-                const label = getLabel(item);
-                const country = getValue(item, 'country');
-                const desc = getValue(item, 'description');
-                rows += `<tr><td><span class="badge badge-location">地</span>${label}</td><td>${country}</td><td>${desc}</td></tr>`;
-            }
-            document.getElementById('locationBody').innerHTML = rows;
-        }
-
-        function renderPublications(doc) {
-            const types = ['Paper', 'TechnicalReport', 'Book'];
-            let rows = '';
-            for (const t of types) {
-                const items = doc.getElementsByTagNameNS(NS.turing, t);
-                for (const item of items) {
-                    const label = getLabel(item);
-                    const type = getType(item);
-                    const year = getValue(item, 'publicationYear');
-                    const desc = getValue(item, 'description');
-                    rows += `<tr><td>${label}</td><td><span class="badge badge-publication">${type}</span></td><td>${year}</td><td>${desc}</td></tr>`;
-                }
-            }
-            document.getElementById('publicationBody').innerHTML = rows;
-        }
-
-        function renderAwards(doc) {
-            const types = ['AcademicAward', 'HonoraryTitle'];
-            let rows = '';
-            for (const t of types) {
-                const items = doc.getElementsByTagNameNS(NS.turing, t);
-                for (const item of items) {
-                    const label = getLabel(item);
-                    const type = t === 'AcademicAward' ? '学术' : '荣誉';
-                    const year = getValue(item, 'awardYear');
-                    const desc = getValue(item, 'description');
-                    rows += `<tr><td>${label}</td><td><span class="badge badge-award">${type}</span></td><td>${year}</td><td>${desc}</td></tr>`;
-                }
-            }
-            document.getElementById('awardBody').innerHTML = rows;
-        }
-
-        // 渲染 NER 抽取的实体（从 NER_* rdf:ID 识别）
-        function renderNEREntities(doc) {
-            const allElements = doc.getElementsByTagName('*');
-            const nerEntities = { Person: [], Location: [], Publication: [], Award: [], HistoricalEvent: [] };
-            const typeBadge = {
-                'Person': 'badge-person',
-                'Location': 'badge-location',
-                'Publication': 'badge-publication',
-                'Award': 'badge-award',
-                'HistoricalEvent': 'badge-event',
-            };
-
-            for (const el of allElements) {
-                const id = el.getAttribute('rdf:ID');
-                if (!id || !id.startsWith('NER_')) continue;
-                // 找到实际类型（取 tagName 中的 turing 前缀部分）
-                const tagName = el.tagName || '';
-                const localType = tagName.replace(/^.*[}:]/, '') || 'Person';
-                const label = getLabel(el);
-                const desc = getValue(el, 'description');
-                if (nerEntities[localType]) {
-                    nerEntities[localType].push({ label, desc });
-                }
-            }
-
-            let html = '';
-            for (const [type, items] of Object.entries(nerEntities)) {
-                if (items.length === 0) continue;
-                const badge = typeBadge[type] || 'badge-ner';
-                const typeLabel = {
-                    'Person': '人物', 'Location': '地点',
-                    'Publication': '著作', 'Award': '奖项',
-                    'HistoricalEvent': '历史事件',
-                }[type] || type;
-                html += `<div style="margin-bottom:15px">
-                    <h3 style="color:#e67e22;font-size:1em;margin-bottom:8px">
-                        <span class="badge badge-ner">${typeLabel}</span>
-                    </h3>
-                    <div style="display:flex;flex-wrap:wrap;gap:6px">`;
-                for (const item of items) {
-                    html += `<span class="ner-tag" title="${item.desc || ''}">${item.label}</span>`;
-                }
-                html += `</div></div>`;
-            }
-
-            if (html) {
-                document.getElementById('nerContent').innerHTML = html;
-            } else {
-                document.getElementById('nerSection').style.display = 'none';
-            }
-        }
-
     </script>
 </body>
 </html>

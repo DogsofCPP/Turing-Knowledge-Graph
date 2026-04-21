@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    图灵知识图谱 · 事件时间线
+    由 07_event_extraction.py 自动生成
+    逻辑：从语料句子中识别事件，按年份排序
+    被 turing-full-data.xml 通过 owl:imports 引入
+-->
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:turing="http://www.example.org/turing#"
+    xml:base="http://www.example.org/turing">
+
+    <!-- ==================== 本体声明 ==================== -->
+    <owl:Ontology rdf:about="http://www.example.org/turing">
+        <rdfs:comment>事件时间线层 - 从语料自动抽取</rdfs:comment>
+    </owl:Ontology>
+
+    <!-- ==================== 事件时间线（按年份排序）==================== -->
+
+    <turing:PersonalEvent rdf:ID="NEREvent_1912_图灵出生于伦敦">
+        <rdfs:label>图灵出生于伦敦</rdfs:label>
+        <turing:eventDate rdf:datatype="http://www.w3.org/2001/XMLSchema#date">1912-01-01</turing:eventDate>
+        <turing:description>图灵出生于伦敦</turing:description>
+        <turing:source>event-extraction</turing:source>
+    </turing:PersonalEvent>
+
+    <turing:HistoricalEvent rdf:ID="NEREvent_1936_提出图灵机概念">
+        <rdfs:label>提出图灵机概念</rdfs:label>
+        <turing:eventDate rdf:datatype="http://www.w3.org/2001/XMLSchema#date">1936-01-01</turing:eventDate>
+        <turing:description>提出图灵机概念</turing:description>
+        <turing:source>event-extraction</turing:source>
+    </turing:HistoricalEvent>
+
+    <turing:AcademicEvent rdf:ID="NEREvent_1939_加入布莱切利园">
+        <rdfs:label>加入布莱切利园</rdfs:label>
+        <turing:eventDate rdf:datatype="http://www.w3.org/2001/XMLSchema#date">1939-01-01</turing:eventDate>
+        <turing:description>加入布莱切利园</turing:description>
+        <turing:source>event-extraction</turing:source>
+    </turing:AcademicEvent>
+
+    <turing:AcademicEvent rdf:ID="NEREvent_1939_加入布莱切利园破译密码">
+        <rdfs:label>加入布莱切利园破译密码</rdfs:label>
+        <turing:eventDate rdf:datatype="http://www.w3.org/2001/XMLSchema#date">1939-01-01</turing:eventDate>
+        <turing:description>加入布莱切利园破译密码</turing:description>
+        <turing:source>event-extraction</turing:source>
+    </turing:AcademicEvent>
+
+    <turing:AcademicEvent rdf:ID="NEREvent_1945_设计自动计算引擎">
+        <rdfs:label>设计自动计算引擎</rdfs:label>
+        <turing:eventDate rdf:datatype="http://www.w3.org/2001/XMLSchema#date">1945-01-01</turing:eventDate>
+        <turing:description>设计自动计算引擎</turing:description>
+        <turing:source>event-extraction</turing:source>
+    </turing:AcademicEvent>
+
+    <turing:HistoricalEvent rdf:ID="NEREvent_1946_获得大英帝国勋章">
+        <rdfs:label>获得大英帝国勋章</rdfs:label>
+        <turing:eventDate rdf:datatype="http://www.w3.org/2001/XMLSchema#date">1946-01-01</turing:eventDate>
+        <turing:description>获得大英帝国勋章</turing:description>
+        <turing:source>event-extraction</turing:source>
+    </turing:HistoricalEvent>
+
+    <turing:HistoricalEvent rdf:ID="NEREvent_1948_在曼彻斯特大学工作">
+        <rdfs:label>在曼彻斯特大学工作</rdfs:label>
+        <turing:eventDate rdf:datatype="http://www.w3.org/2001/XMLSchema#date">1948-01-01</turing:eventDate>
+        <turing:description>在曼彻斯特大学工作</turing:description>
+        <turing:source>event-extraction</turing:source>
+    </turing:HistoricalEvent>
+
+    <turing:AcademicEvent rdf:ID="NEREvent_1950_发表计算机器与智能">
+        <rdfs:label>发表《计算机器与智能》</rdfs:label>
+        <turing:eventDate rdf:datatype="http://www.w3.org/2001/XMLSchema#date">1950-01-01</turing:eventDate>
+        <turing:description>发表《计算机器与智能》</turing:description>
+        <turing:source>event-extraction</turing:source>
+    </turing:AcademicEvent>
+
+    <turing:HistoricalEvent rdf:ID="NEREvent_1950_提出图灵测试">
+        <rdfs:label>提出图灵测试</rdfs:label>
+        <turing:eventDate rdf:datatype="http://www.w3.org/2001/XMLSchema#date">1950-01-01</turing:eventDate>
+        <turing:description>提出图灵测试</turing:description>
+        <turing:source>event-extraction</turing:source>
+    </turing:HistoricalEvent>
+
+    <turing:HistoricalEvent rdf:ID="NEREvent_1951_当选英国皇家学会院士">
+        <rdfs:label>当选英国皇家学会院士</rdfs:label>
+        <turing:eventDate rdf:datatype="http://www.w3.org/2001/XMLSchema#date">1951-01-01</turing:eventDate>
+        <turing:description>当选英国皇家学会院士</turing:description>
+        <turing:source>event-extraction</turing:source>
+    </turing:HistoricalEvent>
+
+    <turing:AcademicEvent rdf:ID="NEREvent_1952_发表形态发生的化学基础">
+        <rdfs:label>发表《形态发生的化学基础》</rdfs:label>
+        <turing:eventDate rdf:datatype="http://www.w3.org/2001/XMLSchema#date">1952-01-01</turing:eventDate>
+        <turing:description>发表《形态发生的化学基础》</turing:description>
+        <turing:source>event-extraction</turing:source>
+    </turing:AcademicEvent>
+
+    <turing:PersonalEvent rdf:ID="NEREvent_1952_因同性恋被审判">
+        <rdfs:label>因同性恋被审判</rdfs:label>
+        <turing:eventDate rdf:datatype="http://www.w3.org/2001/XMLSchema#date">1952-01-01</turing:eventDate>
+        <turing:description>因同性恋被审判</turing:description>
+        <turing:source>event-extraction</turing:source>
+    </turing:PersonalEvent>
+
+    <turing:PersonalEvent rdf:ID="NEREvent_1954_图灵逝世">
+        <rdfs:label>图灵逝世</rdfs:label>
+        <turing:eventDate rdf:datatype="http://www.w3.org/2001/XMLSchema#date">1954-01-01</turing:eventDate>
+        <turing:description>图灵逝世</turing:description>
+        <turing:source>event-extraction</turing:source>
+    </turing:PersonalEvent>
+
+    <turing:PersonalEvent rdf:ID="NEREvent_1954_图灵逝世于威尔姆斯洛">
+        <rdfs:label>图灵逝世于威尔姆斯洛</rdfs:label>
+        <turing:eventDate rdf:datatype="http://www.w3.org/2001/XMLSchema#date">1954-01-01</turing:eventDate>
+        <turing:description>图灵逝世于威尔姆斯洛</turing:description>
+        <turing:source>event-extraction</turing:source>
+    </turing:PersonalEvent>
+
+    <turing:HistoricalEvent rdf:ID="NEREvent_1966_图灵奖设立">
+        <rdfs:label>图灵奖设立</rdfs:label>
+        <turing:eventDate rdf:datatype="http://www.w3.org/2001/XMLSchema#date">1966-01-01</turing:eventDate>
+        <turing:description>图灵奖设立</turing:description>
+        <turing:source>event-extraction</turing:source>
+    </turing:HistoricalEvent>
+
+    <turing:HistoricalEvent rdf:ID="NEREvent_2013_获得皇家赦免">
+        <rdfs:label>获得皇家赦免</rdfs:label>
+        <turing:eventDate rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2013-01-01</turing:eventDate>
+        <turing:description>获得皇家赦免</turing:description>
+        <turing:source>event-extraction</turing:source>
+    </turing:HistoricalEvent>
+
+    <turing:HistoricalEvent rdf:ID="NEREvent_2017_艾伦_图灵法案">
+        <rdfs:label>艾伦·图灵法案</rdfs:label>
+        <turing:eventDate rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2017-01-01</turing:eventDate>
+        <turing:description>艾伦·图灵法案</turing:description>
+        <turing:source>event-extraction</turing:source>
+    </turing:HistoricalEvent>
+
+    <turing:HistoricalEvent rdf:ID="NEREvent_2017_艾伦_图灵法案通过">
+        <rdfs:label>艾伦·图灵法案通过</rdfs:label>
+        <turing:eventDate rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2017-01-01</turing:eventDate>
+        <turing:description>艾伦·图灵法案通过</turing:description>
+        <turing:source>event-extraction</turing:source>
+    </turing:HistoricalEvent>
+
+    <!-- 共 18 个事件 -->
+
+</rdf:RDF>
